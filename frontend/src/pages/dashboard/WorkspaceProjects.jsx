@@ -1,0 +1,247 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { MdAdd, MdMoreVert, MdDelete, MdEdit, MdCheckCircle, MdAccessTime, MdError } from 'react-icons/md';
+import { HiOutlineDocument } from 'react-icons/hi';
+import Navbar from '../../components/Navbar';
+import api from '../../services/api';
+
+const statusConfig = {
+  draft:       { label: 'Draft',       icon: <MdEdit size={13} />,        cls: 'text-gray-500 bg-gray-100' },
+  processing:  { label: 'Processing',  icon: <MdAccessTime size={13} />,  cls: 'text-yellow-600 bg-yellow-50' },
+  completed:   { label: 'Completed',   icon: <MdCheckCircle size={13} />, cls: 'text-green-600 bg-green-50' },
+  failed:      { label: 'Failed',      icon: <MdError size={13} />,       cls: 'text-red-600 bg-red-50' },
+};
+
+const WorkspaceProjects = () => {
+  const navigate = useNavigate();
+  const { workspaceId } = useParams();
+  const location = useLocation();
+  const workspaceName = location.state?.workspaceName || 'Workspace';
+
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [projectName, setProjectName] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(null);
+
+  const fetchProjects = async () => {
+    try {
+      const res = await api.get(`/projects/workspace/${workspaceId}`);
+      setProjects(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchProjects(); }, [workspaceId]);
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    if (!projectName.trim()) return;
+    setCreating(true);
+    try {
+      const res = await api.post(`/projects/workspace/${workspaceId}`, { name: projectName });
+      setShowModal(false);
+      setProjectName('');
+      // Go straight to upload for new project
+      navigate(`/workspace/${workspaceId}/project/${res.data.id}/editor`,
+        { state: { workspaceName, uploadType: 'pdf' } });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this project?')) return;
+    try {
+      await api.delete(`/projects/${id}`);
+      setProjects(projects.filter(p => p.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
+    setMenuOpen(null);
+  };
+
+  const handleOpen = (project) => {
+    if (project.status === 'completed') {
+      navigate(`/workspace/${workspaceId}/project/${project.id}/success`,
+        { state: { workspaceName } });
+    } else if (project.status === 'processing') {
+      navigate(`/workspace/${workspaceId}/project/${project.id}/questions`,
+        { state: { workspaceName } });
+    } else {
+      navigate(`/workspace/${workspaceId}/project/${project.id}/editor`,
+        { state: { workspaceName, uploadType: 'pdf' } });
+    }
+  };
+
+  const formatDate = (d) => new Date(d).toLocaleDateString('en-IN', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  });
+
+  return (
+    <div className="min-h-screen bg-white flex flex-col">
+      <Navbar />
+
+      <main className="flex-1 px-[60px] py-8">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-sm mb-6">
+          <button onClick={() => navigate('/dashboard')}
+            className="text-gray-400 hover:text-gray-600 transition">
+            ← Dashboard
+          </button>
+          <span className="text-gray-300">/</span>
+          <span className="text-gray-900 font-semibold">{workspaceName}</span>
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-[22px] font-bold text-gray-900">{workspaceName}</h1>
+            <p className="text-sm text-gray-500 mt-0.5">{projects.length} project{projects.length !== 1 ? 's' : ''}</p>
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 h-[38px] px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition"
+          >
+            <MdAdd size={18} /> New Project
+          </button>
+        </div>
+
+        {/* Projects grid */}
+        {loading ? (
+          <div className="flex justify-center h-48 items-center">
+            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : projects.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-center">
+            <HiOutlineDocument size={52} className="text-gray-300 mb-4" />
+            <p className="text-gray-500 font-medium">No projects yet</p>
+            <p className="text-gray-400 text-sm mt-1">Create your first project to get started</p>
+            <button
+              onClick={() => setShowModal(true)}
+              className="mt-5 flex items-center gap-2 h-[38px] px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition"
+            >
+              <MdAdd size={18} /> New Project
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {projects.map((project) => {
+              const status = statusConfig[project.status] || statusConfig.draft;
+              return (
+                <div key={project.id}
+                  className="relative border border-gray-200 rounded-xl p-4 bg-white hover:shadow-md transition group cursor-pointer"
+                  onClick={() => handleOpen(project)}
+                >
+                  {/* 3-dot menu */}
+                  <div className="absolute top-3 right-3">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === project.id ? null : project.id); }}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 opacity-0 group-hover:opacity-100 transition"
+                    >
+                      <MdMoreVert size={18} />
+                    </button>
+                    {menuOpen === project.id && (
+                      <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[130px]">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
+                          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
+                        >
+                          <MdDelete size={14} /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Icon */}
+                  <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center mb-3">
+                    <HiOutlineDocument size={20} className="text-indigo-600" />
+                  </div>
+
+                  {/* Name */}
+                  <p className="font-semibold text-gray-900 text-sm truncate mb-2 pr-6">{project.name}</p>
+
+                  {/* Status badge */}
+                  <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full mb-3 ${status.cls}`}>
+                    {status.icon} {status.label}
+                  </span>
+
+                  {/* Date */}
+                  <p className="text-xs text-gray-400">{formatDate(project.created_at)}</p>
+                </div>
+              );
+            })}
+
+            {/* Add new card */}
+            <button
+              onClick={() => setShowModal(true)}
+              className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:border-indigo-300 hover:bg-indigo-50 transition min-h-[140px]"
+            >
+              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <MdAdd size={22} className="text-gray-400" />
+              </div>
+              <span className="text-sm text-gray-400 font-medium">New Project</span>
+            </button>
+          </div>
+        )}
+      </main>
+
+      <footer className="border-t border-gray-100 py-6 text-center text-sm text-gray-400">
+        © 2026 Docket Factory. All Rights Reserved
+      </footer>
+
+      {/* Create Project Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4"
+          onClick={() => setShowModal(false)}>
+          <div className="bg-white rounded-2xl w-full max-w-[480px] shadow-xl"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">New Project</h2>
+              <button onClick={() => setShowModal(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 text-xl">✕</button>
+            </div>
+            <form onSubmit={handleCreate} className="px-6 py-6 space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Project Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={projectName}
+                  onChange={e => setProjectName(e.target.value)}
+                  placeholder="e.g. Product Launch Video"
+                  required
+                  autoFocus
+                  className="w-full h-[42px] px-4 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                />
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-1">
+                <button type="button" onClick={() => setShowModal(false)}
+                  className="h-[38px] px-5 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition">
+                  Cancel
+                </button>
+                <button type="submit" disabled={creating}
+                  className="h-[38px] px-6 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold rounded-lg transition flex items-center gap-2">
+                  {creating
+                    ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    : 'Create & Open'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {menuOpen && <div className="fixed inset-0 z-0" onClick={() => setMenuOpen(null)} />}
+    </div>
+  );
+};
+
+export default WorkspaceProjects;
