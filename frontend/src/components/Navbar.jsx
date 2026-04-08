@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { MdDashboard, MdPayment } from 'react-icons/md';
 import { HiOutlineBell, HiOutlineCurrencyRupee } from 'react-icons/hi';
@@ -9,25 +9,35 @@ const Navbar = () => {
   const { user, login, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const intervalRef = useRef(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  // Refresh credits every 30s and on route change
+  // Refresh credits on route change
   useEffect(() => {
     const refreshCredits = async () => {
       try {
         const res = await api.get('/auth/me');
         login(localStorage.getItem('token'), res.data);
       } catch {
-        // silent fail
+        // silent
       }
     };
-
     refreshCredits();
-    intervalRef.current = setInterval(refreshCredits, 30000);
-    return () => clearInterval(intervalRef.current);
   }, [location.pathname]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleLogout = () => {
+    setDropdownOpen(false);
     logout();
     navigate('/login');
   };
@@ -50,28 +60,22 @@ const Navbar = () => {
         <div className="flex items-center gap-4">
 
           {/* Dashboard link */}
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition"
-          >
+          <Link to="/dashboard"
+            className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition">
             <MdDashboard size={17} />
             Dashboard
           </Link>
 
           {/* Payment history link */}
-          <Link
-            to="/payment-history"
-            className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition"
-          >
+          <Link to="/payment-history"
+            className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition">
             <MdPayment size={17} />
             Payment history
           </Link>
 
           {/* Credits pill */}
-          <Link
-            to="/credits"
-            className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-1.5 text-sm hover:border-indigo-300 hover:bg-indigo-50 transition group"
-          >
+          <Link to="/credits"
+            className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-1.5 text-sm hover:border-indigo-300 hover:bg-indigo-50 transition group">
             <HiOutlineCurrencyRupee size={16} className="text-gray-400 group-hover:text-indigo-500" />
             <span className="text-gray-500 text-xs">Credits:</span>
             <span className="font-bold text-gray-900">{credits}</span>
@@ -83,41 +87,49 @@ const Navbar = () => {
             <HiOutlineBell size={18} />
           </button>
 
-          {/* Avatar dropdown */}
-          <div className="relative group">
-            <button className="w-9 h-9 flex items-center justify-center bg-indigo-600 text-white rounded-lg font-bold text-sm hover:bg-indigo-700 transition select-none">
+          {/* Avatar — click to toggle dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(prev => !prev)}
+              className="w-9 h-9 flex items-center justify-center bg-indigo-600 text-white rounded-lg font-bold text-sm hover:bg-indigo-700 transition select-none"
+            >
               {initials}
             </button>
 
             {/* Dropdown */}
-            <div className="absolute right-0 top-11 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[180px] hidden group-hover:block">
-              {/* User info */}
-              <div className="px-4 py-3 border-b border-gray-100">
-                <p className="text-sm font-semibold text-gray-900 truncate">{user?.full_name}</p>
-                <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+            {dropdownOpen && (
+              <div className="absolute right-0 top-11 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[200px]">
+                {/* User info */}
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{user?.full_name}</p>
+                  <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                </div>
+
+                <Link to="/profile"
+                  onClick={() => setDropdownOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                  👤 Profile Settings
+                </Link>
+                <Link to="/credit-usage"
+                  onClick={() => setDropdownOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                  📊 Credit Usage
+                </Link>
+                <Link to="/payment-history"
+                  onClick={() => setDropdownOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
+                  💳 Payment History
+                </Link>
+
+                <hr className="border-gray-100" />
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-b-xl transition"
+                >
+                  🚪 Logout
+                </button>
               </div>
-
-              <Link to="/profile"
-                className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                👤 Profile Settings
-              </Link>
-              <Link to="/credit-usage"
-                className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                📊 Credit Usage
-              </Link>
-              <Link to="/payment-history"
-                className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
-                💳 Payment History
-              </Link>
-
-              <hr className="border-gray-100" />
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-b-xl transition"
-              >
-                🚪 Logout
-              </button>
-            </div>
+            )}
           </div>
 
         </div>
