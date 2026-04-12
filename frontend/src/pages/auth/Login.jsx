@@ -43,7 +43,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex justify-between bg-white">
       {/* Left Panel - Illustration */}
-      <div className="hidden lg:flex flex-col items-center justify-center bg-[#F8F7FA] w-[816px] rounded-[20px] m-8 relative overflow-hidden">
+      <div className="hidden lg:flex flex-col items-center justify-center bg-[#F8F7FA] lg:w-[816px] rounded-[20px] m-8 relative overflow-hidden">
         <div className="">
           <img
             src={loginIllustration}
@@ -55,120 +55,116 @@ const Login = () => {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex flex-col justify-center w-full lg:w-auto px-8 lg:px-[140px]">
-        {/* Logo */}
-        <div className="mb-10">
-          <h1 className="text-[28px] font-bold text-gray-900 tracking-tight">
-            Docket Factory
-          </h1>
-        </div>
-
-        {/* Heading */}
-        <div className="mb-8">
-          <h2 className="text-[28px] font-semibold text-gray-900 leading-tight mb-2">
-            Welcome to Docket Factory!
-          </h2>
-          <p className="text-[15px] text-gray-500">
-            Please sign in to your account and start the adventure
-          </p>
-        </div>
-
-        {/* Error */}
-        {error && (
-          <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
-            {error}
-          </div>
-        )}
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Email
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              required
-              className="w-full h-[42px] px-4 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
-            />
+      <div className="flex-1 flex items-center justify-center">
+        <div className="w-[400px]">
+          {/* Heading */}
+          <div className="mb-[26px]">
+            <h2 className="font-medium text-[26px] leading-9 text-text-h1">
+              Welcome to Docket Factory!
+            </h2>
+            <p className="font-normal leading-[22px] text-[15px] text-text-h2">
+              Please sign in to your account and start the adventure
+            </p>
           </div>
 
-          {/* Password */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-sm font-medium text-gray-700">
-                Password
+          {/* Error */}
+          {error && (
+            <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email */}
+            <div>
+              <label className="font-semibold text-sm text-input-label mb-1">
+                Email
               </label>
-              <Link to="/forgot-password" className="text-sm text-indigo-600 hover:underline">
-                Forgot Password?
-              </Link>
-            </div>
-            <div className="relative">
               <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                value={form.password}
+                type="email"
+                name="email"
+                value={form.email}
                 onChange={handleChange}
-                placeholder="Enter your password"
+                placeholder="eg: user@gmail.com"
                 required
-                className="w-full h-[42px] px-4 pr-11 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                className="w-full px-[14px] py-[7px] border border-input-border rounded-[6px] text-sm text-gray-900 placeholder-[#B4B3B9] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showPassword ? <AiOutlineEyeInvisible size={18} /> : <AiOutlineEye size={18} />}
-              </button>
             </div>
-          </div>
 
-          {/* Remember me checkbox */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="remember"
-              className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-            />
-            <label htmlFor="remember" className="text-sm text-gray-600">
-              Remember me
-            </label>
-          </div>
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="font-semibold text-sm text-input-label">
+                  Password
+                </label>
+                <Link to="/forgot-password" className="text-sm text-indigo-600 hover:underline">
+                  Forgot Password?
+                </Link>
+              </div>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  required
+                  className="w-full px-[14px] py-[7px] border border-input-border rounded-[6px] text-sm text-gray-900 placeholder-[#B4B3B9] focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <AiOutlineEyeInvisible size={18} /> : <AiOutlineEye size={18} />}
+                </button>
+              </div>
+            </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full h-[42px] bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold rounded-lg transition flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : 'Sign in'}
-          </button>
-        </form>
+            {/* Remember me checkbox */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="remember"
+                className="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <label htmlFor="remember" className="text-sm text-gray-600">
+                Remember me
+              </label>
+            </div>
 
-        {/* Register link */}
-        <p className="mt-6 text-sm text-gray-500 text-center">
-          New on our platform?{' '}
-          <Link to="/register" className="text-indigo-600 font-medium hover:underline">
-            Create an account
-          </Link>
-        </p>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full h-[38px] bg-button-color opacity-65 hover:bg-button-color hover:opacity-100 disabled:opacity-60 text-white text-sm font-semibold rounded-lg transition flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {loading ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : 'Sign in'}
+            </button>
+          </form>
 
-        {/* Terms */}
-        <div className="mt-8 text-center space-y-1">
-          <p className="text-xs text-gray-400">
-            By signing in, you accept our{' '}
-            <span className="text-indigo-500 cursor-pointer hover:underline">Terms and Conditions</span>
+          {/* Register link */}
+          <p className="mt-4 font-normal text-[15px] leading-[22px] text-text-h2 text-center">
+            New on our platform?{' '}
+            <Link to="/register" className="text-brand-color font-medium hover:underline">
+              Create an account
+            </Link>
           </p>
-          <p className="text-xs text-indigo-500 cursor-pointer hover:underline">
-            See our Privacy Policy
-          </p>
+
+          {/* Terms */}
+          <div className="mt-[26px] text-center">
+            <p className="font-normal text-xs leading-[22px] text-text-h2">
+              By signing in, you accept our{' '}
+              <span className="text-brand-color cursor-pointer hover:underline">Terms and Conditions</span>
+            </p>
+            <p className="font-normal text-xs leading-[22px] text-text-h2">
+              See our
+              <span className="text-brand-color cursor-pointer hover:underline"> Privacy Policy</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>
