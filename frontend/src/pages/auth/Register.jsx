@@ -234,7 +234,7 @@ const Register = () => {
 
             {/* Submit */}
             <button type="submit" disabled={loading}
-              className="w-full h-[38px] bg-button-color opacity-65 hover:opacity-100 disabled:opacity-40 text-white text-sm font-semibold rounded-lg transition flex items-center justify-center gap-2 cursor-pointer">
+              className={`w-full h-[38px] bg-button-color text-white text-sm font-semibold rounded-lg transition flex items-center justify-center gap-2 cursor-pointer hover:opacity-100 ${agreed ? 'opacity-100' : 'opacity-65'}`}>
               {loading
                 ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 : 'Create Account'}
