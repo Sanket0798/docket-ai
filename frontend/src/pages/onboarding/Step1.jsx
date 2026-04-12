@@ -28,10 +28,10 @@ const Step1 = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center px-6 py-12">
       {/* Progress bar */}
-      <div className="w-full max-w-[700px] flex gap-2 mb-12">
-        <div className="h-2 flex-1 rounded-full bg-indigo-600" />
-        <div className="h-2 flex-1 rounded-full bg-gray-200" />
-        <div className="h-2 flex-1 rounded-full bg-gray-200" />
+      <div className="w-full max-w-[700px] flex mb-12">
+        <div className="h-2 flex-1 bg-[#1958FF]" />
+        <div className="h-2 flex-1 bg-[#D9D9D9]" />
+        <div className="h-2 flex-1 bg-[#D9D9D9]" />
       </div>
 
       {/* Heading */}
