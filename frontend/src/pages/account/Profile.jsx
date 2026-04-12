@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const Profile = () => {
   const { user, login } = useAuth();
-  const [form, setForm] = useState({ full_name: '', email: '', phone: '' });
+  const [form, setForm] = useState({ first_name: '', last_name: '', email: '', phone: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -17,7 +17,8 @@ const Profile = () => {
     api.get('/profile')
       .then(res => {
         setForm({
-          full_name: res.data.full_name || '',
+          first_name: res.data.first_name || '',
+          last_name: res.data.last_name || '',
           email: res.data.email || '',
           phone: res.data.phone || '',
         });
@@ -34,13 +35,13 @@ const Profile = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!form.full_name.trim()) {
-      setError('Full name is required');
+    if (!form.first_name.trim()) {
+      setError('First name is required');
       return;
     }
     setSaving(true);
     try {
-      await api.put('/profile', { full_name: form.full_name, phone: form.phone });
+      await api.put('/profile', { first_name: form.first_name, last_name: form.last_name, phone: form.phone });
       // Refresh user in context
       const res = await api.get('/auth/me');
       login(localStorage.getItem('token'), res.data);
@@ -53,8 +54,8 @@ const Profile = () => {
     }
   };
 
-  const initials = form.full_name
-    ? form.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  const initials = form.first_name
+    ? (form.first_name[0] + (form.last_name?.[0] || '')).toUpperCase()
     : 'U';
 
   return (
@@ -77,7 +78,7 @@ const Profile = () => {
                 {initials}
               </div>
               <div>
-                <p className="font-semibold text-gray-900 text-base">{form.full_name}</p>
+                <p className="font-semibold text-gray-900 text-base">{form.first_name} {form.last_name}</p>
                 <p className="text-sm text-gray-500">{form.email}</p>
                 <div className="flex items-center gap-1.5 mt-1">
                   <MdCheckCircle size={14} className="text-green-500" />
@@ -108,34 +109,49 @@ const Profile = () => {
             {/* Form */}
             <form onSubmit={handleSave}>
               <div className="grid grid-cols-2 gap-5 mb-5">
-                {/* Full Name */}
+                {/* First Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Full Name <span className="text-red-500">*</span>
+                    First Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    name="full_name"
-                    value={form.full_name}
+                    name="first_name"
+                    value={form.first_name}
                     onChange={handleChange}
-                    placeholder="John Doe"
+                    placeholder="John"
                     required
                     className="w-full h-[42px] px-4 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
                   />
                 </div>
 
-                {/* Phone */}
+                {/* Last Name */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Last Name
+                  </label>
                   <input
-                    type="tel"
-                    name="phone"
-                    value={form.phone}
+                    type="text"
+                    name="last_name"
+                    value={form.last_name}
                     onChange={handleChange}
-                    placeholder="+91 00000 00000"
+                    placeholder="Doe"
                     className="w-full h-[42px] px-4 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
                   />
                 </div>
+              </div>
+
+              {/* Phone */}
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  placeholder="+91 00000 00000"
+                  className="w-full h-[42px] px-4 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                />
               </div>
 
               {/* Email — read only */}

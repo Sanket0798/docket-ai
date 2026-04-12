@@ -13,9 +13,9 @@ const generateToken = (user) =>
 
 const register = async (req, res) => {
   try {
-    const { full_name, email, phone, password } = req.body;
-    if (!full_name || !email || !password)
-      return res.status(400).json({ message: 'Name, email and password are required' });
+    const { first_name, last_name, email, phone, company_name, password } = req.body;
+    if (!first_name || !last_name || !email || !password)
+      return res.status(400).json({ message: 'First name, last name, email and password are required' });
 
     const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
     if (existing.length > 0)
@@ -23,8 +23,8 @@ const register = async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
     const [result] = await pool.query(
-      'INSERT INTO users (full_name, email, phone, password) VALUES (?, ?, ?, ?)',
-      [full_name, email, phone || null, hashed]
+      'INSERT INTO users (first_name, last_name, email, phone, company_name, password) VALUES (?, ?, ?, ?, ?, ?)',
+      [first_name, last_name, email, phone || null, company_name || null, hashed]
     );
 
     const userId = result.insertId;
@@ -144,7 +144,7 @@ const resendOTP = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, full_name, email, phone, credits, avatar_url, is_email_verified, created_at FROM users WHERE id = ?',
+      'SELECT id, first_name, last_name, email, phone, company_name, credits, avatar_url, is_email_verified, created_at FROM users WHERE id = ?',
       [req.user.id]
     );
     if (rows.length === 0)

@@ -43,8 +43,8 @@ const Navbar = () => {
   };
 
   const credits = parseFloat(user?.credits || 0).toFixed(2);
-  const initials = user?.full_name
-    ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  const initials = user?.first_name
+    ? (user.first_name[0] + (user.last_name?.[0] || '')).toUpperCase()
     : 'U';
 
   return (
@@ -101,7 +101,7 @@ const Navbar = () => {
               <div className="absolute right-0 top-11 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[200px]">
                 {/* User info */}
                 <div className="px-4 py-3 border-b border-gray-100">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{user?.full_name}</p>
+                  <p className="text-sm font-semibold text-gray-900 truncate">{user?.first_name} {user?.last_name}</p>
                   <p className="text-xs text-gray-400 truncate">{user?.email}</p>
                 </div>
 

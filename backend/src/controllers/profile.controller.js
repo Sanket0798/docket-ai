@@ -3,7 +3,7 @@ const { pool } = require('../config/db');
 const getProfile = async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, full_name, email, phone, credits, avatar_url, is_email_verified, created_at FROM users WHERE id = ?',
+      'SELECT id, first_name, last_name, email, phone, company_name, credits, avatar_url, is_email_verified, created_at FROM users WHERE id = ?',
       [req.user.id]
     );
     if (rows.length === 0)
@@ -17,10 +17,12 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { full_name, phone } = req.body;
+    const { first_name, last_name, phone, company_name } = req.body;
+    if (!first_name || !last_name)
+      return res.status(400).json({ message: 'First name and last name are required' });
     await pool.query(
-      'UPDATE users SET full_name = ?, phone = ? WHERE id = ?',
-      [full_name, phone || null, req.user.id]
+      'UPDATE users SET first_name = ?, last_name = ?, phone = ?, company_name = ? WHERE id = ?',
+      [first_name, last_name, phone || null, company_name || null, req.user.id]
     );
     res.json({ message: 'Profile updated' });
   } catch (err) {

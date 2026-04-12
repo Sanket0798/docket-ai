@@ -4,9 +4,11 @@ USE Docket_Factory;
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  full_name VARCHAR(100) NOT NULL,
+  first_name VARCHAR(50) NOT NULL,
+  last_name VARCHAR(50) NOT NULL,
   email VARCHAR(150) UNIQUE NOT NULL,
   phone VARCHAR(20),
+  company_name VARCHAR(150),
   password VARCHAR(255) NOT NULL,
   is_email_verified BOOLEAN DEFAULT FALSE,
   is_phone_verified BOOLEAN DEFAULT FALSE,
