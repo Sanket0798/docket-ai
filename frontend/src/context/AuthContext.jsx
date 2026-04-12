@@ -8,15 +8,24 @@ export const AuthProvider = ({ children }) => {
     const stored = localStorage.getItem('user');
     return stored ? JSON.parse(stored) : null;
   });
+  const [onboardingDone, setOnboardingDone] = useState(() => {
+    return localStorage.getItem('onboardingDone') === 'true';
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      api.get('/auth/me')
-        .then((res) => {
-          setUser(res.data);
-          localStorage.setItem('user', JSON.stringify(res.data));
+      Promise.all([
+        api.get('/auth/me'),
+        api.get('/onboarding'),
+      ])
+        .then(([meRes, obRes]) => {
+          setUser(meRes.data);
+          localStorage.setItem('user', JSON.stringify(meRes.data));
+          const done = obRes.data?.completed === true || obRes.data?.completed === 1;
+          setOnboardingDone(done);
+          localStorage.setItem('onboardingDone', done);
         })
         .catch(() => logout())
         .finally(() => setLoading(false));
@@ -31,14 +40,21 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
   };
 
+  const completeOnboarding = () => {
+    setOnboardingDone(true);
+    localStorage.setItem('onboardingDone', 'true');
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('onboardingDone');
     setUser(null);
+    setOnboardingDone(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, onboardingDone, completeOnboarding }}>
       {children}
     </AuthContext.Provider>
   );

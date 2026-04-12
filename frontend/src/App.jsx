@@ -9,6 +9,7 @@ import Register from './pages/auth/Register';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
+import GetStarted from './pages/auth/GetStarted';
 
 // Onboarding
 import OnboardingStep1 from './pages/onboarding/Step1';
@@ -48,6 +49,7 @@ function App() {
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/get-started" element={<ProtectedRoute><GetStarted /></ProtectedRoute>} />
 
             {/* Onboarding */}
             <Route path="/onboarding/step1" element={<ProtectedRoute><OnboardingStep1 /></ProtectedRoute>} />

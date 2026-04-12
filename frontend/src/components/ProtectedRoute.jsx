@@ -1,8 +1,9 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, onboardingDone } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -12,7 +13,15 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  return user ? children : <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
+
+  // If onboarding not done, only allow onboarding routes
+  const isOnboardingRoute = location.pathname.startsWith('/onboarding') || location.pathname === '/get-started';
+  if (!onboardingDone && !isOnboardingRoute) {
+    return <Navigate to="/onboarding/step1" replace />;
+  }
+
+  return children;
 };
 
 export default ProtectedRoute;

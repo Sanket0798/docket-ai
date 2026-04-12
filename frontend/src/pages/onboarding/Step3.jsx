@@ -15,7 +15,7 @@ const aiOptions = [
 
 const Step3 = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { completeOnboarding } = useAuth();
   const [selected, setSelected] = useState(
     () => sessionStorage.getItem('ob_ai_assistance') || ''
   );
@@ -35,6 +35,7 @@ const Step3 = () => {
       sessionStorage.removeItem('ob_project_type');
       sessionStorage.removeItem('ob_scenes');
       sessionStorage.removeItem('ob_ai_assistance');
+      completeOnboarding();
       navigate('/dashboard');
     } catch (err) {
       console.error(err);
