@@ -73,7 +73,7 @@ const Profile = () => {
           <div className="max-w-[900px]">
             {/* Avatar section */}
             <div className="flex items-center gap-5 mb-10 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-              <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+              <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl font-bold shrink-0">
                 {initials}
               </div>
               <div>

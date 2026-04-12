@@ -141,13 +141,13 @@ const Preview = () => {
                         </p>
                         <p className="text-sm font-semibold text-gray-800 mb-2">{q.question}</p>
                         <div className="flex items-center gap-2">
-                          <MdCheckCircle size={16} className="text-green-500 flex-shrink-0" />
+                          <MdCheckCircle size={16} className="text-green-500 shrink-0" />
                           <span className="text-sm text-gray-700 font-medium">
                             {labelMap[q.answer] || q.answer}
                           </span>
                         </div>
                       </div>
-                      <span className="text-xs bg-indigo-50 text-indigo-600 font-medium px-2.5 py-1 rounded-full flex-shrink-0">
+                      <span className="text-xs bg-indigo-50 text-indigo-600 font-medium px-2.5 py-1 rounded-full shrink-0">
                         Selected
                       </span>
                     </div>

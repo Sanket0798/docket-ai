@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import loginIllustration from '../../assets/login-illustration.svg';
+import loginIllustration from '../../assets/auth/login-illustration.svg';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -41,10 +41,10 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-white">
+    <div className="min-h-screen flex justify-between bg-white">
       {/* Left Panel - Illustration */}
-      <div className="hidden lg:flex flex-col items-center justify-center bg-[#F8F7FF] w-[57%] px-16 relative overflow-hidden">
-        <div className="w-full max-w-[500px]">
+      <div className="hidden lg:flex flex-col items-center justify-center bg-[#F8F7FA] w-[816px] rounded-[20px] m-8 relative overflow-hidden">
+        <div className="">
           <img
             src={loginIllustration}
             alt="Login illustration"
@@ -52,12 +52,10 @@ const Login = () => {
             onError={(e) => { e.target.style.display = 'none'; }}
           />
         </div>
-        {/* Bottom line decoration */}
-        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gray-200" />
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex flex-col justify-center w-full lg:w-[43%] px-8 lg:px-[94px]">
+      <div className="flex flex-col justify-center w-full lg:w-auto px-8 lg:px-[140px]">
         {/* Logo */}
         <div className="mb-10">
           <h1 className="text-[28px] font-bold text-gray-900 tracking-tight">

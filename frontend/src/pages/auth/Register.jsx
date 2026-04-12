@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import api from '../../services/api';
-import loginIllustration from '../../assets/login-illustration.svg';
+import loginIllustration from '../../assets/auth/login-illustration.svg';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -64,7 +64,7 @@ const Register = () => {
             onError={(e) => { e.target.style.display = 'none'; }}
           />
         </div>
-        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gray-200" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gray-200" />
       </div>
 
       {/* Right Panel - Form */}

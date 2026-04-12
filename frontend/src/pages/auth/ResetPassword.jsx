@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import api from '../../services/api';
-import loginIllustration from '../../assets/login-illustration.svg';
+import loginIllustration from '../../assets/auth/login-illustration.svg';
 
 const ResetPassword = () => {
   const navigate = useNavigate();

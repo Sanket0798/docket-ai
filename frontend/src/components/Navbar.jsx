@@ -48,7 +48,7 @@ const Navbar = () => {
     : 'U';
 
   return (
-    <nav className="w-full h-[97px] border-b border-gray-200 bg-white flex items-center px-[60px] flex-shrink-0">
+    <nav className="w-full h-[97px] border-b border-gray-200 bg-white flex items-center px-[60px] shrink-0">
       <div className="flex items-center justify-between w-full">
 
         {/* Logo */}

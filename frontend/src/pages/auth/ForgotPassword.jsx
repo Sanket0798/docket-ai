@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import loginIllustration from '../../assets/login-illustration.svg';
+import loginIllustration from '../../assets/auth/login-illustration.svg';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();

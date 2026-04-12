@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import loginIllustration from '../../assets/login-illustration.svg';
+import loginIllustration from '../../assets/auth/login-illustration.svg';
 
 const VerifyEmail = () => {
   const navigate = useNavigate();
