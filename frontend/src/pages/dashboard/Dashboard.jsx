@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MdAdd, MdFolderOpen, MdMoreVert, MdDelete } from 'react-icons/md';
+import { MdAdd, MdMoreVert, MdDelete } from 'react-icons/md';
 import { HiOutlineUpload } from 'react-icons/hi';
 import Navbar from '../../components/Navbar';
 import api from '../../services/api';
@@ -81,15 +81,15 @@ const Dashboard = () => {
             <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : workspaces.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 text-center">
-            <MdFolderOpen size={56} className="text-gray-300 mb-4" />
-            <p className="text-gray-500 text-base font-medium">No workspaces yet</p>
-            <p className="text-gray-400 text-sm mt-1">Create your first workspace to get started</p>
+          <div className="flex flex-col items-center justify-center h-[calc(100vh-200px)] text-center">
+            <img src="/assets/icons/Empty-cuate.svg" alt="No workspaces" className="mb-6" />
+            <p className="text-gray-800 text-lg font-medium">No Workspace Yet</p>
+            <p className="text-gray-400 text-sm mt-1 mb-6">Create your videos in new workspace</p>
             <button
               onClick={() => setShowModal(true)}
-              className="mt-5 flex items-center gap-2 h-[38px] px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition"
+              className="flex items-center gap-2 h-[38px] px-5 bg-button-color text-white text-sm font-semibold rounded-lg hover:opacity-90 transition"
             >
-              <MdAdd size={18} /> Create Workspace
+              Create workspace +
             </button>
           </div>
         ) : (

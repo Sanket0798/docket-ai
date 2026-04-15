@@ -18,11 +18,11 @@ const GetStarted = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Logout button top-right */}
-      <div className="flex justify-end p-6">
+      {/* Logout top-right */}
+      <div className="flex justify-end px-8 pt-6">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 bg-button-color text-white text-sm font-semibold rounded-lg hover:opacity-90 transition"
+          className="flex items-center gap-2 px-4 h-[38px] bg-button-color text-white text-sm font-semibold rounded-lg hover:opacity-90 transition"
         >
           Logout
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -33,7 +33,8 @@ const GetStarted = () => {
 
       {/* Centered content */}
       <div className="flex-1 flex items-center justify-center">
-        <div className="w-[480px]">
+        <div className="w-[512px]">
+          {/* Heading */}
           <h2 className="font-medium text-[26px] leading-9 text-text-h1 mb-1">
             You are all set to get started
           </h2>
@@ -41,6 +42,7 @@ const GetStarted = () => {
             Lorem ipsum dolor sit amet, consectetur adipiscing elit,
           </p>
 
+          {/* Textarea */}
           <div className="mb-4">
             <label className="font-semibold text-sm text-input-label mb-2 block">
               Tell me something about yourself...
@@ -54,6 +56,7 @@ const GetStarted = () => {
             />
           </div>
 
+          {/* Continue button */}
           <button
             onClick={handleContinue}
             className="w-full h-[38px] bg-button-color text-white text-sm font-semibold rounded-lg hover:opacity-90 transition"

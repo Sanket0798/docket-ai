@@ -2,15 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import { MdAutoAwesome, MdRecordVoiceOver, MdColorLens, MdTimeline, MdOutlineSubtitles, MdOutlineMusicNote } from 'react-icons/md';
 
 const aiOptions = [
-  { id: 'script_writing', label: 'Script Writing', icon: <MdAutoAwesome size={30} />, desc: 'AI helps craft your script' },
-  { id: 'voiceover', label: 'Voiceover', icon: <MdRecordVoiceOver size={30} />, desc: 'AI-generated narration' },
-  { id: 'visual_style', label: 'Visual Style', icon: <MdColorLens size={30} />, desc: 'Scene aesthetics & mood' },
-  { id: 'storyboarding', label: 'Storyboarding', icon: <MdTimeline size={30} />, desc: 'Scene-by-scene planning' },
-  { id: 'subtitles', label: 'Subtitles & Captions', icon: <MdOutlineSubtitles size={30} />, desc: 'Auto-generated text' },
-  { id: 'music', label: 'Background Music', icon: <MdOutlineMusicNote size={30} />, desc: 'AI music suggestions' },
+  { id: 'generating_scenes', label: 'Generating scenes from script' },
+  { id: 'visual_references', label: 'Suggesting visual references' },
+  { id: 'storytelling', label: 'Improving storytelling' },
+  { id: 'camera_shots', label: 'Camera & shot suggestions' },
+  { id: 'mood_lighting', label: 'Improving Mood & lighting ideas' },
 ];
 
 const Step3 = () => {
@@ -31,7 +29,6 @@ const Step3 = () => {
         ai_assistance: selected,
         completed: true,
       });
-      // Clear session storage
       sessionStorage.removeItem('ob_project_type');
       sessionStorage.removeItem('ob_scenes');
       sessionStorage.removeItem('ob_ai_assistance');
@@ -39,6 +36,7 @@ const Step3 = () => {
       navigate('/dashboard');
     } catch (err) {
       console.error(err);
+      completeOnboarding();
       navigate('/dashboard');
     } finally {
       setLoading(false);
@@ -48,52 +46,39 @@ const Step3 = () => {
   const handleBack = () => navigate('/onboarding/step2');
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center px-6 py-12">
+    <div className="min-h-screen bg-white flex flex-col items-center px-6 py-[192px]">
       {/* Progress bar */}
-      <div className="w-full max-w-[700px] flex mb-12">
+      <div className="w-full max-w-[700px] flex mb-5">
         <div className="h-2 flex-1 bg-[#1958FF]" />
         <div className="h-2 flex-1 bg-[#1958FF]" />
         <div className="h-2 flex-1 bg-[#1958FF]" />
       </div>
 
       {/* Heading */}
-      <div className="w-full max-w-[700px] mb-10">
-        <h1 className="text-[28px] font-bold text-gray-900 leading-tight mb-2">
+      <div className="w-full max-w-[700px] mb-14">
+        <h1 className="font-medium text-[25px] leading-9 text-text-h1">
           What would you like AI to help you with the most?
         </h1>
-        <p className="text-[15px] text-gray-500">
+        <p className="font-normal leading-[22px] text-[15px] text-text-h2">
           Choose where you want the most assistance in your workflow
         </p>
       </div>
 
-      {/* Cards grid */}
-      <div className="w-full max-w-[700px] grid grid-cols-2 sm:grid-cols-3 gap-4 mb-12">
+      {/* Cards grid — 2 columns, text only */}
+      <div className="w-full max-w-[700px] grid grid-cols-2 gap-4 mb-12">
         {aiOptions.map((opt) => (
           <button
             key={opt.id}
             onClick={() => setSelected(opt.id)}
-            className={`relative flex flex-col items-center justify-center gap-3 p-6 rounded-xl border-2 transition-all text-center
+            className={`flex items-center justify-center px-5 h-[56px] rounded-[5px] border transition-all text-center
               ${selected === opt.id
-                ? 'border-indigo-600 bg-indigo-50 shadow-md'
-                : 'border-gray-200 bg-white hover:border-indigo-300 hover:bg-gray-50'
+                ? 'border-[#1958FF] bg-indigo-50'
+                : 'border-[#C3C3C3] bg-white hover:border-indigo-300 hover:bg-gray-50'
               }`}
           >
-            {selected === opt.id && (
-              <span className="absolute top-3 right-3 w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center">
-                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </span>
-            )}
-            <span className={selected === opt.id ? 'text-indigo-600' : 'text-gray-500'}>
-              {opt.icon}
+            <span className={`font-medium text-[15px] ${selected === opt.id ? 'text-indigo-700' : 'text-text-h1 font-medium text-2xl leading-[32px]'}`}>
+              {opt.label}
             </span>
-            <div>
-              <p className={`font-semibold text-sm ${selected === opt.id ? 'text-indigo-700' : 'text-gray-800'}`}>
-                {opt.label}
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
-            </div>
           </button>
         ))}
       </div>
@@ -102,26 +87,23 @@ const Step3 = () => {
       <div className="w-full max-w-[700px] flex items-center justify-between">
         <button
           onClick={handleBack}
-          className="px-6 h-[38px] border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
+          className="flex items-center gap-2 h-[38px] px-5 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
-          Previous question
+          Previous
         </button>
         <button
           onClick={handleFinish}
           disabled={!selected || loading}
-          className="px-8 h-[38px] bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition flex items-center gap-2"
+          className={`px-8 h-[38px] bg-button-color text-white cursor-pointer text-sm font-semibold rounded-lg transition flex items-center gap-2 hover:opacity-65 ${selected ? 'opacity-100 hover:opacity-100' : 'opacity-65'} disabled:cursor-not-allowed`}
         >
           {loading ? (
-            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin cursor-pointer" />
           ) : (
             <>
-              Get Started
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
+              Finish
             </>
           )}
         </button>

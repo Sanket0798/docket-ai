@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { MdDashboard, MdPayment } from 'react-icons/md';
-import { HiOutlineBell, HiOutlineCurrencyRupee } from 'react-icons/hi';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
@@ -48,50 +46,50 @@ const Navbar = () => {
     : 'U';
 
   return (
-    <nav className="w-full h-[97px] border-b border-gray-200 bg-white flex items-center px-[60px] shrink-0">
+    <nav className="w-full h-[97px] bg-[#FBFCFF] flex items-center px-[60px] shrink-0">
       <div className="flex items-center justify-between w-full">
 
         {/* Logo */}
-        <Link to="/dashboard" className="text-[22px] font-bold text-gray-900 tracking-tight">
+        <Link to="/dashboard" className="text-[20px] font-bold text-gray-900 tracking-tight">
           Docket Factory
         </Link>
 
         {/* Right side */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
 
           {/* Dashboard link */}
           <Link to="/dashboard"
             className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition">
-            <MdDashboard size={17} />
+            <img src="/assets/icons/Dashboard.svg" alt="" className="w-4 h-4" />
             Dashboard
           </Link>
 
           {/* Payment history link */}
           <Link to="/payment-history"
             className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition">
-            <MdPayment size={17} />
+            <img src="/assets/icons/Rupee.svg" alt="" className="w-4 h-4" />
             Payment history
           </Link>
 
           {/* Credits pill */}
           <Link to="/credits"
             className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-1.5 text-sm hover:border-indigo-300 hover:bg-indigo-50 transition group">
-            <HiOutlineCurrencyRupee size={16} className="text-gray-400 group-hover:text-indigo-500" />
+            <img src="/assets/icons/Credits.svg" alt="" className="w-4 h-4 opacity-60 group-hover:opacity-100" />
             <span className="text-gray-500 text-xs">Credits:</span>
-            <span className="font-bold text-gray-900">{credits}</span>
+            <span className="font-bold text-gray-900">₹{credits}</span>
             <span className="text-indigo-600 font-bold text-base leading-none ml-0.5">+</span>
           </Link>
 
           {/* Bell */}
-          <button className="w-9 h-9 flex items-center justify-center border border-gray-200 rounded-lg hover:bg-gray-50 transition text-gray-500 hover:text-gray-700">
-            <HiOutlineBell size={18} />
+          <button className="w-9 h-9 flex items-center justify-center border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+            <img src="/assets/icons/Bell.svg" alt="Notifications" className="w-4 h-4" />
           </button>
 
-          {/* Avatar — click to toggle dropdown */}
+          {/* Avatar */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(prev => !prev)}
-              className="w-9 h-9 flex items-center justify-center bg-indigo-600 text-white rounded-lg font-bold text-sm hover:bg-indigo-700 transition select-none"
+              className="w-9 h-9 flex items-center justify-center bg-[#E6F0FF] text-brand-color border border-[#94B8FF] rounded-lg font-bold text-sm transition select-none cursor-pointer"
             >
               {initials}
             </button>
@@ -99,33 +97,25 @@ const Navbar = () => {
             {/* Dropdown */}
             {dropdownOpen && (
               <div className="absolute right-0 top-11 bg-white border border-gray-200 rounded-xl shadow-xl z-50 min-w-[200px]">
-                {/* User info */}
                 <div className="px-4 py-3 border-b border-gray-100">
                   <p className="text-sm font-semibold text-gray-900 truncate">{user?.first_name} {user?.last_name}</p>
                   <p className="text-xs text-gray-400 truncate">{user?.email}</p>
                 </div>
-
-                <Link to="/profile"
-                  onClick={() => setDropdownOpen(false)}
+                <Link to="/profile" onClick={() => setDropdownOpen(false)}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
                   👤 Profile Settings
                 </Link>
-                <Link to="/credit-usage"
-                  onClick={() => setDropdownOpen(false)}
+                <Link to="/credit-usage" onClick={() => setDropdownOpen(false)}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
                   📊 Credit Usage
                 </Link>
-                <Link to="/payment-history"
-                  onClick={() => setDropdownOpen(false)}
+                <Link to="/payment-history" onClick={() => setDropdownOpen(false)}
                   className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition">
                   💳 Payment History
                 </Link>
-
                 <hr className="border-gray-100" />
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-b-xl transition"
-                >
+                <button onClick={handleLogout}
+                  className="flex items-center gap-2 w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-b-xl transition">
                   🚪 Logout
                 </button>
               </div>
