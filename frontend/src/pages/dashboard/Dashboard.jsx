@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MdAdd, MdMoreVert, MdDelete } from 'react-icons/md';
-import { HiOutlineUpload } from 'react-icons/hi';
 import Navbar from '../../components/Navbar';
 import api from '../../services/api';
 
@@ -98,77 +97,83 @@ const Dashboard = () => {
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-8">
-              <h1 className="text-[28px] font-bold text-gray-900">My Workspaces</h1>
-              <button
-                onClick={() => setShowModal(true)}
-                className="flex items-center gap-2 h-[38px] px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition"
-              >
-                <MdAdd size={18} />
-                Create Workspace
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {workspaces.map((ws) => (
-                <div
-                  key={ws.id}
-                  className="relative border border-gray-200 rounded-xl p-4 bg-white hover:shadow-md transition group"
+            <div className='flex flex-col px-[60px] my-[18px]'>
+              <div className="flex items-center justify-between mb-9">
+                <h1 className="text-[34px] font-medium leading-[48px] text-[#4A4755]">My Workspaces</h1>
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="flex items-center gap-2 h-[38px] px-5 bg-brand-color hover:bg-indigo-700 text-white font-medium text-[15px] leading-[18px] rounded-[6px] transition cursor-pointer"
                 >
-                  {/* Card header */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                      <HiOutlineUpload size={20} className="text-indigo-600" />
+                  Create Workspace
+                  <img src="assets/icons/plus.svg" alt="" />
+                </button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {workspaces.map((ws) => (
+                  <div
+                    key={ws.id}
+                    className="relative flex items-center justify-between border-2 border-dashed border-brand-color rounded-[6px] px-4 py-3 bg-[#F2F8FF] group hover:bg-[#E8EBFF] transition min-w-0"
+                  >
+                    {/* Page icon */}
+                    <div className='flex flex-row items-center gap-x-[14px] min-w-0 overflow-hidden'>
+                      <img
+                        src="/assets/icons/page.svg"
+                        alt="workspace"
+                        className="shrink-0"
+                      />
+
+                      {/* Name & meta */}
+                      <div className="min-w-0 font-normal">
+                        <p className="text-brand-color text-base truncate">{ws.name}</p>
+                        <p className="text-xs text-text-h2">
+                          {ws.project_count || 0} project{ws.project_count !== 1 ? 's' : ''}
+                        </p>
+                      </div>
                     </div>
-                    {/* 3-dot menu */}
-                    <div className="relative">
+
+                    {/* Open button */}
+                    <div className='flex items-center justify-end gap-2'>
                       <button
-                        onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === ws.id ? null : ws.id); }}
-                        className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 opacity-0 group-hover:opacity-100 transition"
+                        onClick={() => handleOpen(ws)}
+                        className="shrink-0 h-7 px-3 border border-brand-color text-brand-color rounded-[7px] font-medium text-[10px] leading-[16px] bg-transparent hover:bg-indigo-50 transition cursor-pointer"
                       >
-                        <MdMoreVert size={18} />
+                        View
                       </button>
-                      {menuOpen === ws.id && (
-                        <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[130px]">
-                          <button
-                            onClick={() => handleDelete(ws.id)}
-                            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
-                          >
-                            <MdDelete size={15} /> Delete
-                          </button>
-                        </div>
-                      )}
+
+                      {/* 3-dot menu */}
+                      <div className="relative shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setMenuOpen(menuOpen === ws.id ? null : ws.id); }}
+                          className="w-4 h-4 flex items-center justify-center rounded-[4px] hover:bg-indigo-100 text-gray-400 transition cursor-pointer"
+                        >
+                          <MdMoreVert size={16} />
+                        </button>
+                        {menuOpen === ws.id && (
+                          <div className="absolute right-0 top-7 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[130px]">
+                            <button
+                              onClick={() => handleDelete(ws.id)}
+                              className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#B24E4E] hover:bg-red-50 rounded-lg cursor-pointer"
+                            >
+                              <img src="assets/icons/delete-workspace.svg" alt="" /> Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
+                ))}
 
-                  {/* Name & meta */}
-                  <p className="font-semibold text-gray-900 text-sm truncate mb-1">{ws.name}</p>
-                  {ws.description && (
-                    <p className="text-xs text-gray-400 truncate mb-3">{ws.description}</p>
-                  )}
-                  <p className="text-xs text-gray-400 mb-4">
-                    {ws.project_count || 0} project{ws.project_count !== 1 ? 's' : ''}
-                  </p>
-
-                  {/* Open button */}
-                  <button
-                    onClick={() => handleOpen(ws)}
-                    className="w-full h-[30px] border border-indigo-200 text-indigo-600 text-xs font-semibold rounded-lg hover:bg-indigo-50 transition"
-                  >
-                    Open
-                  </button>
-                </div>
-              ))}
-
-              {/* Add new card */}
-              <button
-                onClick={() => setShowModal(true)}
-                className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:border-indigo-300 hover:bg-indigo-50 transition min-h-[140px]"
-              >
-                <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <MdAdd size={22} className="text-gray-400" />
-                </div>
-                <span className="text-sm text-gray-400 font-medium">New Workspace</span>
-              </button>
+                {/* Add new card */}
+                {/* <button
+                  onClick={() => setShowModal(true)}
+                  className="border-2 border-dashed border-gray-300 rounded-xl px-4 py-3 flex items-center gap-3 hover:border-indigo-300 hover:bg-indigo-50 transition"
+                >
+                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+                    <MdAdd size={20} className="text-gray-400" />
+                  </div>
+                  <span className="text-sm text-gray-400 font-medium">New Workspace</span>
+                </button> */}
+              </div>
             </div>
           </>
         )}
