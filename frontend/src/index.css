@@ -1,9 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
   /* ── Typography ── */
   --font-sans: 'Public Sans', sans-serif;
+  --font-urbanist: 'Urbanist', sans-serif;
 
   --text-heading-1: 32px;
   --text-heading-1--line-height: 1.2;
@@ -54,8 +56,10 @@
   --color-border: #E5E7EB;
   --color-text-h1: #4A4755;
   --color-text-h2: #6F6B7D;
+  --color-brand-text: #1958FF;
   --color-input-label: #4B465C;
   --color-input-border: #DBDADE;
+  --color-button-border: #E4E4E5;
   --color-brand-color: #316AFF;
   --color-button-color: #316AFF;
   --color-text-primary: #111827;
