@@ -11,6 +11,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [showProcessing, setShowProcessing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [form, setForm] = useState({ name: '', description: '' });
   const [menuOpen, setMenuOpen] = useState(null);
 
@@ -31,13 +33,26 @@ const Dashboard = () => {
     e.preventDefault();
     if (!form.name.trim()) return;
     setCreating(true);
+    setShowModal(false);
+    setShowProcessing(true);
     try {
       await api.post('/workspaces', form);
+      // await Promise.all([
+      //   api.post('/workspaces', form),
+      //   new Promise(r => setTimeout(r, 2000)), // min 2s so user sees the popup
+      // ]);
       setForm({ name: '', description: '' });
-      setShowModal(false);
-      fetchWorkspaces();
+      // Show success popup
+      setShowProcessing(false);
+      setShowSuccess(true);
+      // Auto-close success after 2s and refresh
+      setTimeout(() => {
+        setShowSuccess(false);
+        fetchWorkspaces();
+      }, 2000);
     } catch (err) {
       console.error(err);
+      setShowProcessing(false);
     } finally {
       setCreating(false);
     }
@@ -75,7 +90,7 @@ const Dashboard = () => {
             <p className="font-normal text-[19px] text-[#787889] mb-6" style={{ fontFamily: 'Urbanist, sans-serif' }}>Create your videos in new workspace</p>
             <button
               onClick={() => setShowModal(true)}
-              className="flex items-center gap-2 h-[38px] px-5 bg-brand-color text-white text-[15px] leading-[18px] font-medium rounded-[6px] hover:opacity-90 transition"
+              className="flex items-center gap-2 h-[38px] px-5 bg-brand-color text-white text-[15px] leading-[18px] font-medium rounded-[6px] hover:opacity-90 transition cursor-pointer"
             >
               Create workspace
               <img src="assets/icons/plus.svg" alt="" />
@@ -167,29 +182,29 @@ const Dashboard = () => {
       {/* Create Workspace Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="bg-white rounded-2xl w-full max-w-[540px] shadow-xl"
+            className="bg-white rounded-[6px] w-full max-w-[594px] h-[414px] flex flex-col gap-6"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">Create Workspace</h2>
+            <div className="flex items-center justify-between p-6 border-[#333333]/20 border-b">
+              <h2 className="font-medium text-[22px] leading-[24px] text-[#333333]" style={{ fontFamily: 'Geist, sans-serif' }}>Create Workspace</h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 text-xl"
+              // className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 text-xl"
               >
-                ✕
+                <img src="assets/icons/cancel-outline.svg" alt="" className='cursor-pointer' />
               </button>
             </div>
 
             {/* Modal body */}
-            <form onSubmit={handleCreate} className="px-6 py-6 space-y-5">
+            <form onSubmit={handleCreate} className="px-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Workspace Name <span className="text-red-500">*</span>
+                <label className="block font-normal text-xs text-[#333333] mb-1" style={{ fontFamily: 'Geist, sans-serif' }}>
+                  Workspace Name <span className="text-[#FF2B2F]">*</span>
                 </label>
                 <input
                   type="text"
@@ -197,11 +212,12 @@ const Dashboard = () => {
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="e.g. My Brand Videos"
                   required
-                  className="w-full h-[42px] px-4 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                  style={{ fontFamily: 'Geist, sans-serif' }}
+                  className="w-full h-[40px] px-4 border border-[#EFEFEF]/80 rounded-[6px] font-normal text-[15px] leading-6 placeholder-[#333333]/40 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block font-normal text-xs text-[#333333] mb-1" style={{ fontFamily: 'Geist, sans-serif' }}>
                   Description
                 </label>
                 <textarea
@@ -209,27 +225,33 @@ const Dashboard = () => {
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   placeholder="What is this workspace for?"
                   rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none"
+                  style={{ fontFamily: 'Geist, sans-serif' }}
+                  className="w-full px-4 py-3 h-[125px] border border-[#EFEFEF]/80 rounded-[6px] font-normal text-[15px] leading-6 placeholder-[#333333]/40 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none"
                 />
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-2">
+              <div className="flex items-center justify-between">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="h-[38px] px-5 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
+                  className="cursor-pointer"
                 >
-                  Cancel
+                  <img src="assets/icons/delete-workspace.svg" alt="" />
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="h-[38px] px-6 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold rounded-lg transition flex items-center gap-2"
+                  className="h-[38px] w-[121px] justify-center bg-brand-color disabled:opacity-60 text-white font-medium text-[15px] leading-[18px] rounded-[6px] transition flex items-center gap-2 cursor-pointer"
                 >
                   {creating ? (
                     <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : 'Create'}
+                  ) : (
+                    <>
+                      Create
+                      <img src="assets/icons/arrow-right.svg" alt="" />
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -240,6 +262,40 @@ const Dashboard = () => {
       {/* Close menu on outside click */}
       {menuOpen && (
         <div className="fixed inset-0 z-0" onClick={() => setMenuOpen(null)} />
+      )}
+
+      {/* Processing popup */}
+      {showProcessing && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-[6px] shadow-xl px-10 py-6 flex flex-col items-center gap-4 min-w-[594px]">
+            <img
+              src="/assets/icons/ultimate_loading.svg"
+              alt="Loading"
+              className="animate-spin"
+            />
+            <hr className="w-full border-t border-[#EFEFEF]/60 mb-2" />
+            <p className="font-light text-[32px] text-[#484848]">Please wait while we process</p>
+            <p className="text-lg font-light text-[#484848]">Do not refresh the page.....</p>
+          </div>
+        </div>
+      )}
+
+      {/* Success popup */}
+      {showSuccess && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-[18px] h-[340px] shadow-xl px-10 py-8 flex flex-col items-center justify-center gap-6 min-w-[1128px]">
+            <div className='rounded-full w-[75px] h-[75px]'>
+              <img
+                src="/assets/icons/check_circle.svg"
+                alt="Success"
+              />
+            </div>
+            <div className="text-center space-y-4">
+              <p className="font-medium text-[32px] leading-[24px] text-[#333333]">Workspace created successfully</p>
+              <p className="font-light text-lg leading-[24px] px-10 text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod <br /> tempor incididunt ut labore et dolore magna aliqua.</p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
