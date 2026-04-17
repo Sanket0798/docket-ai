@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MdAdd, MdMoreVert, MdDelete } from 'react-icons/md';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import api from '../../services/api';
 
 const Dashboard = () => {
@@ -179,10 +180,7 @@ const Dashboard = () => {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-[#F8F8F8] py-10 text-center font-normal text-base text-[#1E1F1E]">
-        © 2026 Docket Factory. All Rights Reserved
-      </footer>
+      <Footer />
 
       {/* Create Workspace Modal */}
       {showModal && (

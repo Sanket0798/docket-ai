@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MdCheckCircle } from 'react-icons/md';
 import { HiOutlineUser } from 'react-icons/hi';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
@@ -186,9 +187,7 @@ const Profile = () => {
         )}
       </main>
 
-      <footer className="border-t border-gray-100 py-6 text-center text-sm text-gray-400">
-        © 2026 Docket Factory. All Rights Reserved
-      </footer>
+      <Footer />
     </div>
   );
 };

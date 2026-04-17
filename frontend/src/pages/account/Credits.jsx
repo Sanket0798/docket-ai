@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MdCheckCircle } from 'react-icons/md';
 import { HiSparkles } from 'react-icons/hi2';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 
@@ -107,7 +108,7 @@ const Credits = () => {
         {/* Success banner */}
         {successPlan && (
           <div className="mb-8 flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-5 py-4 max-w-[600px] mx-auto">
-            <MdCheckCircle size={22} className="text-green-500 flex-shrink-0" />
+            <MdCheckCircle size={22} className="text-green-500 shrink-0" />
             <p className="text-sm text-green-700 font-medium">
               {successPlan.credits} credits added successfully! Refreshing...
             </p>
@@ -195,9 +196,7 @@ const Credits = () => {
         </p>
       </main>
 
-      <footer className="border-t border-gray-100 py-6 text-center text-sm text-gray-400">
-        © 2026 Docket Factory. All Rights Reserved
-      </footer>
+      <Footer />
     </div>
   );
 };

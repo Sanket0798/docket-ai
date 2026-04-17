@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { MdAdd, MdMoreVert, MdDelete, MdEdit, MdCheckCircle, MdAccessTime, MdError } from 'react-icons/md';
 import { HiOutlineDocument } from 'react-icons/hi';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import api from '../../services/api';
 
 const statusConfig = {
@@ -192,9 +193,7 @@ const WorkspaceProjects = () => {
         )}
       </main>
 
-      <footer className="border-t border-gray-100 py-6 text-center text-sm text-gray-400">
-        © 2026 Docket Factory. All Rights Reserved
-      </footer>
+      <Footer />
 
       {/* Create Project Modal */}
       {showModal && (

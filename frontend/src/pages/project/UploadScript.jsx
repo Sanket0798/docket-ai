@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { BsFilePdf, BsMicFill } from 'react-icons/bs';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import api from '../../services/api';
 
 const UploadScript = () => {
@@ -94,9 +95,7 @@ const UploadScript = () => {
         )}
       </main>
 
-      <footer className="border-t border-gray-100 py-6 text-center text-sm text-gray-400">
-        © 2026 Docket Factory. All Rights Reserved
-      </footer>
+      <Footer />
     </div>
   );
 };

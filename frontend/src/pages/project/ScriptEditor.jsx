@@ -4,6 +4,7 @@ import { MdAdd, MdDelete, MdPlayArrow, MdPause, MdStop, MdSave } from 'react-ico
 import { BsFilePdf, BsMicFill, BsUpload } from 'react-icons/bs';
 import { LuSend } from 'react-icons/lu';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 
@@ -298,7 +299,7 @@ const ScriptEditor = () => {
                         <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2">
                           <button
                             onClick={() => togglePlay(i)}
-                            className="w-7 h-7 flex items-center justify-center bg-indigo-100 rounded-full text-indigo-600 hover:bg-indigo-200 transition flex-shrink-0"
+                            className="w-7 h-7 flex items-center justify-center bg-indigo-100 rounded-full text-indigo-600 hover:bg-indigo-200 transition shrink-0"
                           >
                             {playingIndex === i ? <MdPause size={14} /> : <MdPlayArrow size={14} />}
                           </button>
@@ -306,7 +307,7 @@ const ScriptEditor = () => {
                           <span className="text-xs text-gray-700 flex-1 truncate">{audio.name}</span>
                           <button
                             onClick={() => deleteAudio(i)}
-                            className="text-gray-400 hover:text-red-500 transition flex-shrink-0"
+                            className="text-gray-400 hover:text-red-500 transition shrink-0"
                           >
                             <MdDelete size={15} />
                           </button>
@@ -367,9 +368,7 @@ const ScriptEditor = () => {
         </div>
       </main>
 
-      <footer className="border-t border-gray-100 py-4 text-center text-sm text-gray-400">
-        © 2026 Docket Factory. All Rights Reserved
-      </footer>
+      <Footer />
     </div>
   );
 };

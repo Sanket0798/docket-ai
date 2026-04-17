@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { MdCheckCircle } from 'react-icons/md';
 import { LuSend } from 'react-icons/lu';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import api from '../../services/api';
 
 const Preview = () => {
@@ -159,9 +160,7 @@ const Preview = () => {
         )}
       </main>
 
-      <footer className="border-t border-gray-100 py-4 text-center text-sm text-gray-400">
-        © 2026 Docket Factory. All Rights Reserved
-      </footer>
+      <Footer />
 
       {/* Export Confirmation Modal */}
       {showConfirm && (

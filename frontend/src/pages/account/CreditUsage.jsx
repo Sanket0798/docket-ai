@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { MdCheckCircle, MdWarning, MdCancel } from 'react-icons/md';
 import { HiOutlineCurrencyRupee } from 'react-icons/hi';
 import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
 import api from '../../services/api';
 
 const statusConfig = {
   completed: { icon: <MdCheckCircle size={14} />, cls: 'text-green-600 bg-green-50' },
-  pending:   { icon: <MdWarning size={14} />,     cls: 'text-yellow-600 bg-yellow-50' },
-  failed:    { icon: <MdCancel size={14} />,      cls: 'text-red-600 bg-red-50' },
+  pending: { icon: <MdWarning size={14} />, cls: 'text-yellow-600 bg-yellow-50' },
+  failed: { icon: <MdCancel size={14} />, cls: 'text-red-600 bg-red-50' },
 };
 
 const CreditUsage = () => {
@@ -43,7 +44,7 @@ const CreditUsage = () => {
       {/* Low credits warning banner */}
       {lowCredits && (
         <div className="w-full bg-yellow-50 border-b border-yellow-200 px-[60px] py-3 flex items-center gap-3">
-          <MdWarning size={18} className="text-yellow-500 flex-shrink-0" />
+          <MdWarning size={18} className="text-yellow-500 shrink-0" />
           <p className="text-sm text-yellow-700 font-medium">
             You're running low on credits. <a href="/credits" className="underline font-semibold">Buy more credits</a> to continue.
           </p>
@@ -76,8 +77,8 @@ const CreditUsage = () => {
             <div className="grid grid-cols-3 gap-5 mb-10">
               {[
                 { label: 'Total credits purchased', value: usage?.total_purchased || 0, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-                { label: 'Credits already spent',   value: usage?.total_spent || 0,     color: 'text-orange-500', bg: 'bg-orange-50' },
-                { label: 'Credits left to use',     value: usage?.credits_left || 0,    color: 'text-green-600',  bg: 'bg-green-50' },
+                { label: 'Credits already spent', value: usage?.total_spent || 0, color: 'text-orange-500', bg: 'bg-orange-50' },
+                { label: 'Credits left to use', value: usage?.credits_left || 0, color: 'text-green-600', bg: 'bg-green-50' },
               ].map((stat, i) => (
                 <div key={i} className={`${stat.bg} rounded-2xl p-6 flex flex-col items-center justify-center text-center border border-gray-100`}>
                   <div className="flex items-center gap-1 mb-1">
@@ -158,9 +159,7 @@ const CreditUsage = () => {
         )}
       </main>
 
-      <footer className="border-t border-gray-100 py-6 text-center text-sm text-gray-400">
-        © 2026 Docket Factory. All Rights Reserved
-      </footer>
+      <Footer />
     </div>
   );
 };
