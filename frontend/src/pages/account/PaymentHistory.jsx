@@ -49,8 +49,8 @@ const PaymentHistory = () => {
 
       <main className="flex-1 px-[60px] py-[50px]">
         {/* Header */}
-        <h1 className="text-2xl font-medium leading-[22px] text-[#101828] mb-4">Payment history</h1>
-        <p className="font-light text-lg leading-6 text-[#333333] mb-7">
+        <h1 className="text-2xl font-medium leading-[22px] text-heading-text mb-4">Payment history</h1>
+        <p className="font-light text-lg leading-6 text-secondary-text mb-7">
           Track your billing activity, invoices, and subscription payments
         </p>
 

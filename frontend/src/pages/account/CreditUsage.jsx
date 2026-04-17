@@ -1,21 +1,15 @@
 import { useState, useEffect } from 'react';
-import { MdCheckCircle, MdWarning, MdCancel } from 'react-icons/md';
-import { HiOutlineCurrencyRupee } from 'react-icons/hi';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import api from '../../services/api';
-
-const statusConfig = {
-  completed: { icon: <MdCheckCircle size={14} />, cls: 'text-green-600 bg-green-50' },
-  pending: { icon: <MdWarning size={14} />, cls: 'text-yellow-600 bg-yellow-50' },
-  failed: { icon: <MdCancel size={14} />, cls: 'text-red-600 bg-red-50' },
-};
+import { useNavigate } from 'react-router-dom';
 
 const CreditUsage = () => {
+  const navigate = useNavigate();
   const [usage, setUsage] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [lowCredits, setLowCredits] = useState(false);
+  const [showBanner, setShowBanner] = useState(true);
 
   useEffect(() => {
     Promise.all([
@@ -24,48 +18,57 @@ const CreditUsage = () => {
     ]).then(([usageRes, histRes]) => {
       setUsage(usageRes.data);
       setHistory(histRes.data);
-      setLowCredits(parseFloat(usageRes.data.credits_left) < 50);
     }).catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
   const formatDate = (d) => new Date(d).toLocaleDateString('en-IN', {
-    day: '2-digit', month: 'short', year: 'numeric'
+    day: '2-digit', month: 'short',
   });
-
-  const spentPercent = usage
-    ? Math.min((parseFloat(usage.total_spent) / Math.max(parseFloat(usage.total_purchased), 1)) * 100, 100)
-    : 0;
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      {/* Low credits warning banner */}
-      {lowCredits && (
-        <div className="w-full bg-yellow-50 border-b border-yellow-200 px-[60px] py-3 flex items-center gap-3">
-          <MdWarning size={18} className="text-yellow-500 shrink-0" />
-          <p className="text-sm text-yellow-700 font-medium">
-            You're running low on credits. <a href="/credits" className="underline font-semibold">Buy more credits</a> to continue.
+      {/* Warning banners */}
+      {showBanner && usage && parseFloat(usage.credits_left) === 0 && (
+        <div className="w-full bg-[#FDE7EA] border-b border-[#979797] px-[60px] py-[10px] flex items-center gap-3">
+          <img src="assets/icons/no-credit.svg" alt="" />
+          <p className="font-normal text-base leading-6 text-[#F0142F] flex-1">
+            No credits left! Recharge Now
           </p>
-          <button className="ml-auto text-yellow-500 hover:text-yellow-700 text-lg leading-none">✕</button>
+          <button onClick={() => setShowBanner(false)} className="text-red-400 hover:text-red-600 text-lg leading-none">✕</button>
+        </div>
+      )}
+      {showBanner && usage && parseFloat(usage.credits_left) > 0 && parseFloat(usage.credits_left) <= 50 && (
+        <div className="w-full bg-[#FFF4C9] border-b border-[#FFE082] px-[60px] py-[10px] flex items-center gap-3">
+          <img src="assets/icons/low-credit.svg" alt="" />
+          <p className="font-normal text-base leading-6 text-[#F99600] flex-1">
+            Low on credits ! Recharge now
+          </p>
+          <button onClick={() => setShowBanner(false)} className="text-yellow-500 hover:text-yellow-700 text-lg leading-none">✕</button>
         </div>
       )}
 
-      <main className="flex-1 px-[60px] py-8">
+      <main className="flex-1 px-[60px] pt-[53px] pb-[94px]">
         {/* Header */}
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-[22px] font-bold text-gray-900">Credit Usage</h1>
+        <div className='flex flex-row items-center justify-between'>
+          <div className="flex flex-col items-start gap-y-4">
+            <h1 className="font-medium text-2xl text-heading-text leading-[22px]">Credit Usage</h1>
+            <p className="font-light text-lg leading-6 text-secondary-text">
+              Track your credit usage and manage your activity
+            </p>
+          </div>
+
           <button
-            onClick={() => window.location.href = '/credits'}
-            className="h-[38px] px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition"
+            onClick={() => navigate('/credits')}
+            className="h-[38px] w-[192px] bg-brand-color hover:bg-indigo-700 font-medium text-[15px] leading-[18px] text-white rounded-[6px] transition"
           >
-            + Buy Credits
+            Purchase Credits
           </button>
         </div>
-        <p className="text-sm text-gray-500 mb-8">
-          Track your credit usage and manage your activity
-        </p>
+
+
 
         {loading ? (
           <div className="flex justify-center h-48 items-center">
@@ -74,87 +77,57 @@ const CreditUsage = () => {
         ) : (
           <>
             {/* Stats cards */}
-            <div className="grid grid-cols-3 gap-5 mb-10">
+            <div className="flex flex-row gap-x-13 mt-[35px] mb-[62px]">
               {[
-                { label: 'Total credits purchased', value: usage?.total_purchased || 0, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-                { label: 'Credits already spent', value: usage?.total_spent || 0, color: 'text-orange-500', bg: 'bg-orange-50' },
-                { label: 'Credits left to use', value: usage?.credits_left || 0, color: 'text-green-600', bg: 'bg-green-50' },
+                { label: 'Total credits purchased', value: usage?.total_purchased || 0 },
+                { label: 'Credits already spent', value: usage?.total_spent || 0 },
+                { label: 'Credits left to use', value: usage?.credits_left || 0 },
               ].map((stat, i) => (
-                <div key={i} className={`${stat.bg} rounded-2xl p-6 flex flex-col items-center justify-center text-center border border-gray-100`}>
-                  <div className="flex items-center gap-1 mb-1">
-                    <HiOutlineCurrencyRupee size={18} className={stat.color} />
-                    <span className={`text-[42px] font-bold leading-none ${stat.color}`}>
-                      {parseFloat(stat.value).toFixed(0)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500 mt-2">{stat.label}</p>
+                <div key={i} className="border border-[#BABABA] rounded-[10px] w-[432px] h-[114px] flex flex-col items-center justify-center text-center bg-white">
+                  <p className="font-semibold text-[32px] mb-2" style={{ fontFamily: 'Urbanist, sans-serif' }}>
+                    {parseFloat(stat.value).toFixed(0)}
+                  </p>
+                  <p className="font-light text-lg leading-6 text-secondary-text" style={{ fontFamily: 'Urbanist, sans-serif' }}>{stat.label}</p>
                 </div>
               ))}
             </div>
 
-            {/* Usage progress bar */}
-            <div className="mb-10 bg-gray-50 rounded-2xl p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-gray-700">Usage Overview</p>
-                <p className="text-sm text-gray-500">
-                  {parseFloat(usage?.total_spent || 0).toFixed(0)} / {parseFloat(usage?.total_purchased || 0).toFixed(0)} credits used
-                </p>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div
-                  className={`h-3 rounded-full transition-all duration-700 ${spentPercent > 80 ? 'bg-red-500' : spentPercent > 50 ? 'bg-yellow-500' : 'bg-indigo-600'}`}
-                  style={{ width: `${spentPercent}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-400 mt-2">{spentPercent.toFixed(1)}% of total credits used</p>
-            </div>
+            {/* Detailed Usage History */}
+            <h2 className="font-medium text-2xl leading-[22px] text-heading-text mb-4">Detailed Usage History</h2>
+            <p className="font-light text-lg leading-6 text-secondary-text mb-11">Track your credit usage and manage your activity</p>
 
-            {/* Detailed history table */}
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <h2 className="text-[18px] font-bold text-gray-900">Detailed Usage History</h2>
-                <p className="text-sm text-gray-500 mt-0.5">Track your credit usage and manage your activity</p>
+            {/* Table header + Rows */}
+            {history.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <img src="/assets/icons/files-off.svg" alt="No history" className='mb-6' />
+                <p className="font-medium text-[32px] leading-6 text-secondary-text" style={{ fontFamily: 'Geist, sans-serif' }}>No History found</p>
               </div>
-            </div>
-
-            <div className="border border-gray-200 rounded-xl overflow-hidden">
-              {/* Table header */}
-              <div className="grid grid-cols-5 gap-4 px-5 py-3 bg-gray-50 border-b border-gray-200">
-                {['Action', 'Project', 'Credits Used', 'Date', 'Status'].map(h => (
-                  <p key={h} className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</p>
-                ))}
-              </div>
-
-              {history.length === 0 ? (
-                <div className="px-5 py-12 text-center text-gray-400 text-sm">
-                  No credit usage history yet
+            ) : (
+              <>
+                <div className="grid grid-cols-6 gap-4 pb-[14px] border-b border-[#DCDCDC] mb-4">
+                  {['Action', 'Assets', 'Project', 'Credits Used', 'Date', 'Status'].map((h, i) => (
+                    <p key={i} className="font-medium text-base leading-[22px] text-text-h2 text-center">{h}</p>
+                  ))}
                 </div>
-              ) : (
-                history.map((item, i) => {
-                  const status = statusConfig[item.status] || statusConfig.completed;
-                  return (
+                <div className="flex flex-col gap-3">
+                  {history.map((item) => (
                     <div
                       key={item.id}
-                      className={`grid grid-cols-5 gap-4 px-5 py-4 items-center border-b border-gray-100 hover:bg-gray-50 transition
-                        ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}
+                      className="grid grid-cols-6 gap-4 px-4 py-4 items-center border border-gray-200 rounded-[10px] bg-white hover:bg-gray-50 transition shadow-[0_3px_12px_0_rgba(0,0,0,0.07)] font-medium text-base leading-[22px] text-text-h2 text-center"
                     >
-                      <p className="text-sm text-gray-700 font-medium truncate">{item.action}</p>
-                      <p className="text-sm text-gray-500 truncate">{item.project_name || '—'}</p>
-                      <div className="flex items-center gap-1">
-                        <span className={`text-sm font-semibold ${item.type === 'credit' ? 'text-green-600' : 'text-orange-500'}`}>
-                          {item.type === 'credit' ? '+' : '-'}{parseFloat(item.credits_used).toFixed(0)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500">{formatDate(item.created_at)}</p>
-                      <span className={`flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full w-fit ${status.cls}`}>
-                        {status.icon}
-                        {item.status}
-                      </span>
+                      <p className="truncate">{item.action}</p>
+                      <p className="truncate">{item.action_type || 'Image Generated'}</p>
+                      <p className="truncate">{item.project_name || '—'}</p>
+                      <p className="">{parseFloat(item.credits_used).toFixed(0)}</p>
+                      <p className="pl-5">{formatDate(item.created_at)}</p>
+                      <p className="pl-7 text-[#028900]">
+                        {item.status === 'completed' ? 'Done' : item.status === 'failed' ? 'Failed' : item.status}
+                      </p>
                     </div>
-                  );
-                })
-              )}
-            </div>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </main>

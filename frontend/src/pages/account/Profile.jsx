@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
-import { MdCheckCircle } from 'react-icons/md';
-import { HiOutlineUser } from 'react-icons/hi';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 
 const Profile = () => {
-  const { user, login } = useAuth();
-  const [form, setForm] = useState({ first_name: '', last_name: '', email: '', phone: '' });
+  const { login } = useAuth();
+  const [form, setForm] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    billing_info: '',
+    gstin: '',
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -22,6 +27,8 @@ const Profile = () => {
           last_name: res.data.last_name || '',
           email: res.data.email || '',
           phone: res.data.phone || '',
+          billing_info: res.data.billing_info || '',
+          gstin: res.data.gstin || '',
         });
       })
       .catch(console.error)
@@ -31,7 +38,7 @@ const Profile = () => {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError('');
-    setSaved(false);
+    setShowSuccess(false);
   };
 
   const handleSave = async (e) => {
@@ -42,12 +49,17 @@ const Profile = () => {
     }
     setSaving(true);
     try {
-      await api.put('/profile', { first_name: form.first_name, last_name: form.last_name, phone: form.phone });
-      // Refresh user in context
+      await api.put('/profile', {
+        first_name: form.first_name,
+        last_name: form.last_name,
+        phone: form.phone,
+        billing_info: form.billing_info,
+        gstin: form.gstin,
+      });
       const res = await api.get('/auth/me');
       login(localStorage.getItem('token'), res.data);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 2000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to save');
     } finally {
@@ -55,139 +67,138 @@ const Profile = () => {
     }
   };
 
-  const initials = form.first_name
-    ? (form.first_name[0] + (form.last_name?.[0] || '')).toUpperCase()
-    : 'U';
+  const inputCls = "w-full h-[38px] px-[14px] border border-input-border rounded-[6px] font-normal text-sm leading-[24px] text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition";
+  const labelCls = "block font-semibold text-sm text-text-h2 mb-1";
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-8">
-        {/* Header */}
-        <h1 className="text-[22px] font-bold text-gray-900 mb-8">Profile Settings</h1>
+      <main className="flex-1 px-[60px] pt-7 pb-[138px]">
+        <h1 className="font-medium text-heading-text text-[26px] leading-[36px] mb-[18px]">Profile setting</h1>
 
         {loading ? (
           <div className="flex justify-center h-48 items-center">
             <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="max-w-[900px]">
-            {/* Avatar section */}
-            <div className="flex items-center gap-5 mb-10 p-6 bg-gray-50 rounded-2xl border border-gray-100">
-              <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl font-bold shrink-0">
-                {initials}
-              </div>
-              <div>
-                <p className="font-semibold text-gray-900 text-base">{form.first_name} {form.last_name}</p>
-                <p className="text-sm text-gray-500">{form.email}</p>
-                <div className="flex items-center gap-1.5 mt-1">
-                  <MdCheckCircle size={14} className="text-green-500" />
-                  <span className="text-xs text-green-600 font-medium">Email verified</span>
-                </div>
-              </div>
-              <div className="ml-auto text-right">
-                <p className="text-xs text-gray-400 mb-0.5">Credits balance</p>
-                <p className="text-xl font-bold text-indigo-600">
-                  {parseFloat(user?.credits || 0).toFixed(2)}
-                </p>
-              </div>
-            </div>
+          <form onSubmit={handleSave} className="lg:max-w-full">
 
-            {/* Success / Error */}
-            {saved && (
-              <div className="mb-5 flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-                <MdCheckCircle size={18} className="text-green-500" />
-                <p className="text-sm text-green-700 font-medium">Profile updated successfully!</p>
-              </div>
-            )}
+            {/* Error */}
             {error && (
-              <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+              <div className="mb-5 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
                 {error}
               </div>
             )}
 
-            {/* Form */}
-            <form onSubmit={handleSave}>
-              <div className="grid grid-cols-2 gap-5 mb-5">
-                {/* First Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    First Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="first_name"
-                    value={form.first_name}
-                    onChange={handleChange}
-                    placeholder="John"
-                    required
-                    className="w-full h-[42px] px-4 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
-                  />
-                </div>
-
-                {/* Last Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    name="last_name"
-                    value={form.last_name}
-                    onChange={handleChange}
-                    placeholder="Doe"
-                    className="w-full h-[42px] px-4 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
-                  />
-                </div>
+            {/* Row 1: First Name + Last Name */}
+            <div className="grid grid-cols-2 gap-5 mb-5">
+              <div>
+                <label className={labelCls}>First Name</label>
+                <input
+                  type="text"
+                  name="first_name"
+                  value={form.first_name}
+                  onChange={handleChange}
+                  placeholder="John"
+                  required
+                  className={inputCls}
+                />
               </div>
+              <div>
+                <label className={labelCls}>Last name</label>
+                <input
+                  type="text"
+                  name="last_name"
+                  value={form.last_name}
+                  onChange={handleChange}
+                  placeholder="Diam"
+                  className={inputCls}
+                />
+              </div>
+            </div>
 
-              {/* Phone */}
-              <div className="mb-5">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
+            {/* Row 2: Email + Contact */}
+            <div className="grid grid-cols-2 gap-5 mb-5">
+              <div>
+                <label className={labelCls}>Email ID</label>
+                <input
+                  type="email"
+                  value={form.email}
+                  readOnly
+                  placeholder="john@gmail.com"
+                  className="w-full h-[38px] px-[14px] border border-input-border rounded-[6px] text-sm text-gray-500 bg-gray-100 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Contact</label>
                 <input
                   type="tel"
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
-                  placeholder="+91 00000 00000"
-                  className="w-full h-[42px] px-4 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                  placeholder="9765456780"
+                  className={inputCls}
                 />
               </div>
+            </div>
 
-              {/* Email — read only */}
-              <div className="mb-5">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-                <input
-                  type="email"
-                  value={form.email}
-                  readOnly
-                  className="w-full h-[42px] px-4 border border-gray-200 rounded-lg text-sm text-gray-500 bg-gray-50 cursor-not-allowed"
-                />
-                <p className="text-xs text-gray-400 mt-1">Email cannot be changed</p>
-              </div>
+            {/* Row 3: Billing Info */}
+            <div className="mb-5">
+              <label className={labelCls}>Billing Info</label>
+              <input
+                type="text"
+                name="billing_info"
+                value={form.billing_info}
+                onChange={handleChange}
+                placeholder="Cash"
+                className={inputCls}
+              />
+            </div>
 
-              {/* Save button */}
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex items-center gap-2 h-[42px] px-6 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold rounded-lg transition"
-              >
-                {saving ? (
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <HiOutlineUser size={16} />
-                    Save Changes
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
+            {/* Row 4: GSTIN */}
+            <div className="mb-7">
+              <label className={labelCls}>GSTIN</label>
+              <input
+                type="text"
+                name="gstin"
+                value={form.gstin}
+                onChange={handleChange}
+                placeholder="XT-345-670-7890"
+                className={inputCls}
+              />
+            </div>
+
+            {/* Save button */}
+            <button
+              type="submit"
+              disabled={saving}
+              className="h-[38px] w-[192px] bg-brand-color disabled:opacity-60 text-white text-[15px] leading-[18px] font-medium rounded-[6px] transition flex items-center justify-center cursor-pointer"
+            >
+              {saving ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : 'Save'}
+            </button>
+          </form>
         )}
       </main>
 
       <Footer />
+
+      {/* Success popup */}
+      {showSuccess && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-[18px] h-[340px] shadow-xl px-10 py-8 flex flex-col items-center justify-center gap-6 min-w-[1128px]">
+            <div className='rounded-full w-[75px] h-[75px]'>
+              <img src="/assets/icons/check_circle.svg" alt="Success" />
+            </div>
+            <div className="text-center space-y-4">
+              <p className="font-medium text-[32px] leading-[24px] text-[#333333]">Changes saved successfully</p>
+              <p className="font-light text-lg leading-[24px] px-10 text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod <br /> tempor incididunt ut labore et dolore magna aliqua.</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

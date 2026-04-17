@@ -58,6 +58,7 @@
   --color-border: #E5E7EB;
   --color-text-h1: #4A4755;
   --color-text-h2: #6F6B7D;
+  --color-heading-text: #101828;
   --color-brand-text: #1958FF;
   --color-input-label: #4B465C;
   --color-input-border: #DBDADE;
@@ -67,6 +68,7 @@
   --color-text-primary: #111827;
   --color-text-secondary: #6B7280;
   --color-text-muted: #9CA3AF;
+  --color-secondary-text: #333333;
 
   /* ── Shadows ── */
   --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08);
