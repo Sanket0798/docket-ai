@@ -47,9 +47,9 @@ const WorkspaceProjects = () => {
       const res = await api.post(`/projects/workspace/${workspaceId}`, { name: projectName });
       setShowModal(false);
       setProjectName('');
-      // Go straight to upload for new project
-      navigate(`/workspace/${workspaceId}/project/${res.data.id}/editor`,
-        { state: { workspaceName, uploadType: 'pdf' } });
+      // Go to upload type selection for new project
+      navigate(`/workspace/${workspaceId}/upload`,
+        { state: { workspaceName, projectId: res.data.id } });
     } catch (err) {
       console.error(err);
     } finally {
@@ -76,8 +76,9 @@ const WorkspaceProjects = () => {
       navigate(`/workspace/${workspaceId}/project/${project.id}/questions`,
         { state: { workspaceName } });
     } else {
-      navigate(`/workspace/${workspaceId}/project/${project.id}/editor`,
-        { state: { workspaceName, uploadType: 'pdf' } });
+      // draft — let user choose upload type (PDF or Audio)
+      navigate(`/workspace/${workspaceId}/upload`,
+        { state: { workspaceName, projectId: project.id } });
     }
   };
 

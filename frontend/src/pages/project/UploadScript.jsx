@@ -10,17 +10,23 @@ const UploadScript = () => {
   const { workspaceId } = useParams();
   const location = useLocation();
   const workspaceName = location.state?.workspaceName || 'my_workspace';
+  const existingProjectId = location.state?.projectId || null;
 
   const [creating, setCreating] = useState(false);
 
   const handleChoice = async (type) => {
     setCreating(true);
     try {
-      // Create a new project in this workspace
-      const res = await api.post(`/projects/workspace/${workspaceId}`, {
-        name: `Project ${Date.now()}`,
-      });
-      const projectId = res.data.id;
+      let projectId = existingProjectId;
+
+      // Only create a new project if one wasn't passed in
+      if (!projectId) {
+        const res = await api.post(`/projects/workspace/${workspaceId}`, {
+          name: `Project ${Date.now()}`,
+        });
+        projectId = res.data.id;
+      }
+
       navigate(
         `/workspace/${workspaceId}/project/${projectId}/editor`,
         { state: { workspaceName, uploadType: type } }
@@ -36,41 +42,39 @@ const UploadScript = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-8">
+      <main className="flex-1 px-[60px] py-[51px]">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-1 text-sm mb-10">
+        <div className="flex items-center gap-2 mb-9">
           <button
-            onClick={() => navigate('/dashboard')}
-            className="text-gray-400 hover:text-gray-600 transition"
+            onClick={() => navigate(`/workspace/${workspaceId}`, { state: { workspaceName } })}
+            className='cursor-pointer'
           >
-            ← Back
+            <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
-          <span className="text-gray-300 mx-2">/</span>
-          <span className="text-gray-500 font-medium">{workspaceName}</span>
-          <span className="text-gray-300 mx-2">/</span>
-          <span className="text-gray-900 font-semibold">New Project</span>
+          <span className="text-text-h1 text-[34px] leading-12 font-medium">{workspaceName}/</span>
+          <span className="font-light text-[30px] leading-10 text-[#A7A7A7]">New Project</span>
         </div>
 
         {/* Heading */}
-        <div className="text-center mb-12">
-          <h1 className="text-[28px] font-bold text-gray-900 mb-2">
+        <div className="text-center mb-9">
+          <h1 className="text-text-h1 font-medium text-[26px] leading-9 mb-[6px]">
             Choose a way to upload a script
           </h1>
-          <p className="text-[15px] text-gray-500">
+          <p className="text-[15px] text-text-h2 leading-[22px] font-normal">
             Select the script upload method
           </p>
         </div>
 
         {/* Choice cards */}
-        <div className="flex items-center justify-center gap-6">
+        <div className="flex items-center justify-center gap-7">
           {/* PDF */}
           <button
             onClick={() => handleChoice('pdf')}
             disabled={creating}
-            className="group flex flex-col items-center justify-center gap-4 w-[340px] h-[160px] border-2 border-gray-200 rounded-2xl hover:border-indigo-400 hover:bg-indigo-50 transition disabled:opacity-50"
+            className="group flex flex-col items-center justify-center gap-4 w-[365px] h-[163px] border border-[#818181]/50 rounded hover:border-indigo-400 hover:bg-[#F9F9F9] cursor-pointer transition disabled:opacity-50"
           >
-            <BsFilePdf size={48} className="text-red-400 group-hover:text-indigo-500 transition" />
-            <span className="text-base font-semibold text-gray-700 group-hover:text-indigo-700 transition">
+            <img src="/assets/icons/pdf-upload.svg" alt="" />
+            <span className="font-medium text-xl leading-7 text-[#525252] group-hover:text-brand-color transition">
               Upload a PDF file
             </span>
           </button>
@@ -79,10 +83,10 @@ const UploadScript = () => {
           <button
             onClick={() => handleChoice('audio')}
             disabled={creating}
-            className="group flex flex-col items-center justify-center gap-4 w-[340px] h-[160px] border-2 border-gray-200 rounded-2xl hover:border-indigo-400 hover:bg-indigo-50 transition disabled:opacity-50"
+            className="group flex flex-col items-center justify-center gap-4 w-[365px] h-[163px] border border-[#818181]/50 rounded hover:border-indigo-400 hover:bg-[#F9F9F9] cursor-pointer transition disabled:opacity-50"
           >
-            <BsMicFill size={44} className="text-indigo-400 group-hover:text-indigo-500 transition" />
-            <span className="text-base font-semibold text-gray-700 group-hover:text-indigo-700 transition">
+            <img src="/assets/icons/mp3-upload.svg" alt="" />
+            <span className="font-medium text-xl leading-7 text-[#525252] group-hover:text-brand-color transition">
               Upload an Audio file
             </span>
           </button>
