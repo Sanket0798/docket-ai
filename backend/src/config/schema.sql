@@ -60,6 +60,8 @@ CREATE TABLE IF NOT EXISTS projects (
   user_id INT NOT NULL,
   name VARCHAR(150) NOT NULL,
   script_text TEXT,
+  additional_notes TEXT,
+  transcription_text LONGTEXT,
   script_pdf_url VARCHAR(500),
   audio_url VARCHAR(500),
   status ENUM('draft', 'processing', 'completed', 'failed') DEFAULT 'draft',

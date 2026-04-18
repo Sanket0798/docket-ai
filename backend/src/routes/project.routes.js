@@ -11,6 +11,8 @@ const {
   updateScriptText,
   updateProjectStatus,
   deleteProject,
+  transcribeAudio,
+  getTranscription,
 } = require('../controllers/project.controller');
 
 router.get('/workspace/:workspaceId', protect, getProjects);
@@ -21,5 +23,7 @@ router.post('/:id/upload-audio', protect, uploadAudio.single('file'), uploadAudi
 router.put('/:id/script', protect, updateScriptText);
 router.put('/:id/status', protect, updateProjectStatus);
 router.delete('/:id', protect, deleteProject);
+router.post('/:id/transcribe', protect, transcribeAudio);
+router.get('/:id/transcription', protect, getTranscription);
 
 module.exports = router;

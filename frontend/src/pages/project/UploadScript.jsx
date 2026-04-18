@@ -51,7 +51,7 @@ const UploadScript = () => {
           >
             <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
-          <span className="text-text-h1 text-[34px] leading-12 font-medium">{workspaceName}/</span>
+          <span className="text-text-h1 text-[34px] leading-12 font-medium">{workspaceName} /</span>
           <span className="font-light text-[30px] leading-10 text-[#A7A7A7]">New Project</span>
         </div>
 

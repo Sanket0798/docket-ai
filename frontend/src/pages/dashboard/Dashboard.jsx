@@ -193,8 +193,8 @@ const Dashboard = () => {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal header */}
-            <div className="flex items-center justify-between p-6 border-[#333333]/20 border-b">
-              <h2 className="font-medium text-[22px] leading-[24px] text-[#333333]" style={{ fontFamily: 'Geist, sans-serif' }}>Create Workspace</h2>
+            <div className="flex items-center justify-between p-6 border-secondary-text/20 border-b">
+              <h2 className="font-medium text-[22px] leading-[24px] text-secondary-text" style={{ fontFamily: 'Geist, sans-serif' }}>Create Workspace</h2>
               <button
                 onClick={() => setShowModal(false)}
               // className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 text-xl"
@@ -206,7 +206,7 @@ const Dashboard = () => {
             {/* Modal body */}
             <form onSubmit={handleCreate} className="px-6 space-y-4">
               <div>
-                <label className="block font-normal text-xs text-[#333333] mb-1" style={{ fontFamily: 'Geist, sans-serif' }}>
+                <label className="block font-normal text-xs text-secondary-text mb-1" style={{ fontFamily: 'Geist, sans-serif' }}>
                   Workspace Name <span className="text-[#FF2B2F]">*</span>
                 </label>
                 <input
@@ -216,11 +216,11 @@ const Dashboard = () => {
                   placeholder="e.g. My Brand Videos"
                   required
                   style={{ fontFamily: 'Geist, sans-serif' }}
-                  className="w-full h-[40px] px-4 border border-[#EFEFEF]/80 rounded-[6px] font-normal text-[15px] leading-6 placeholder-[#333333]/40 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
+                  className="w-full h-[40px] px-4 border border-[#EFEFEF]/80 rounded-[6px] font-normal text-[15px] leading-6 placeholder-secondary-text/40 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition"
                 />
               </div>
               <div>
-                <label className="block font-normal text-xs text-[#333333] mb-1" style={{ fontFamily: 'Geist, sans-serif' }}>
+                <label className="block font-normal text-xs text-secondary-text mb-1" style={{ fontFamily: 'Geist, sans-serif' }}>
                   Description
                 </label>
                 <textarea
@@ -229,7 +229,7 @@ const Dashboard = () => {
                   placeholder="What is this workspace for?"
                   rows={3}
                   style={{ fontFamily: 'Geist, sans-serif' }}
-                  className="w-full px-4 py-3 h-[125px] border border-[#EFEFEF]/80 rounded-[6px] font-normal text-[15px] leading-6 placeholder-[#333333]/40 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none"
+                  className="w-full px-4 py-3 h-[125px] border border-[#EFEFEF]/80 rounded-[6px] font-normal text-[15px] leading-6 placeholder-secondary-text/40 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none"
                 />
               </div>
 
@@ -294,7 +294,7 @@ const Dashboard = () => {
               />
             </div>
             <div className="text-center space-y-4">
-              <p className="font-medium text-[32px] leading-[24px] text-[#333333]">Workspace created successfully</p>
+              <p className="font-medium text-[32px] leading-[24px] text-secondary-text">Workspace created successfully</p>
               <p className="font-light text-lg leading-[24px] px-10 text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod <br /> tempor incididunt ut labore et dolore magna aliqua.</p>
             </div>
           </div>

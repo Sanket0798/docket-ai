@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { MdAdd, MdDelete, MdPlayArrow, MdPause, MdStop, MdSave } from 'react-icons/md';
-import { BsFilePdf, BsMicFill, BsUpload } from 'react-icons/bs';
+import { BsFilePdf, BsMicFill } from 'react-icons/bs';
 import { LuSend } from 'react-icons/lu';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
@@ -16,11 +16,10 @@ const ScriptEditor = () => {
   const uploadType = location.state?.uploadType || 'pdf';
   const { toast } = useToast();
 
-  // Script text state
+  // Script text & notes
   const [scriptText, setScriptText] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [additionalNotes, setAdditionalNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [savedMsg, setSavedMsg] = useState('');
 
   // PDF state
   const [pdfFile, setPdfFile] = useState(null);
@@ -29,9 +28,11 @@ const ScriptEditor = () => {
   const pdfInputRef = useRef();
 
   // Audio state
-  const [audioFiles, setAudioFiles] = useState([]);
+  const [audioFile, setAudioFile] = useState(null);       // uploaded file (single)
   const [audioUploading, setAudioUploading] = useState(false);
+  const [recordings, setRecordings] = useState([]);        // recorded clips list
   const [recording, setRecording] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [playingIndex, setPlayingIndex] = useState(null);
@@ -44,6 +45,7 @@ const ScriptEditor = () => {
     api.get(`/projects/${projectId}`)
       .then(res => {
         if (res.data.script_text) setScriptText(res.data.script_text);
+        if (res.data.additional_notes) setAdditionalNotes(res.data.additional_notes);
         if (res.data.script_pdf_url) setPdfUrl(res.data.script_pdf_url);
       })
       .catch(console.error);
@@ -74,6 +76,12 @@ const ScriptEditor = () => {
     }
   };
 
+  const handleRemovePdf = () => {
+    setPdfFile(null);
+    setPdfUrl('');
+    if (pdfInputRef.current) pdfInputRef.current.value = '';
+  };
+
   // ── Audio handlers ─────────────────────────────────────────
   const handleAudioSelect = async (e) => {
     const file = e.target.files[0];
@@ -85,16 +93,20 @@ const ScriptEditor = () => {
       const res = await api.post(`/projects/${projectId}/upload-audio`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setAudioFiles(prev => [...prev, { name: file.name, url: res.data.url, type: 'uploaded' }]);
+      setAudioFile({ name: file.name, url: res.data.url });
     } catch (err) {
       console.error('Audio upload failed:', err);
-      // For dev without Cloudinary — store locally
       const localUrl = URL.createObjectURL(file);
-      setAudioFiles(prev => [...prev, { name: file.name, url: localUrl, type: 'local' }]);
+      setAudioFile({ name: file.name, url: localUrl });
       toast('Audio stored locally (Cloudinary not configured)', 'warning');
     } finally {
       setAudioUploading(false);
     }
+  };
+
+  const handleRemoveAudio = () => {
+    setAudioFile(null);
+    if (audioInputRef.current) audioInputRef.current.value = '';
   };
 
   const startRecording = async () => {
@@ -106,13 +118,14 @@ const ScriptEditor = () => {
       recorder.onstop = () => {
         const blob = new Blob(chunks, { type: 'audio/webm' });
         const url = URL.createObjectURL(blob);
-        const name = `Recording ${audioFiles.length + 1}`;
-        setAudioFiles(prev => [...prev, { name, url, type: 'recorded', blob }]);
+        const name = `Audio ${recordings.length + 1}`;
+        setRecordings(prev => [...prev, { name, url, blob }]);
         stream.getTracks().forEach(t => t.stop());
       };
       recorder.start();
       setMediaRecorder(recorder);
       setRecording(true);
+      setPaused(false);
       setRecordingTime(0);
       timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
     } catch {
@@ -120,14 +133,33 @@ const ScriptEditor = () => {
     }
   };
 
+  const pauseRecording = () => {
+    if (!mediaRecorder) return;
+    if (paused) {
+      mediaRecorder.resume();
+      timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
+      setPaused(false);
+    } else {
+      mediaRecorder.pause();
+      clearInterval(timerRef.current);
+      setPaused(true);
+    }
+  };
+
   const stopRecording = () => {
     mediaRecorder?.stop();
     setRecording(false);
+    setPaused(false);
     clearInterval(timerRef.current);
   };
 
-  const deleteAudio = (index) => {
-    setAudioFiles(prev => prev.filter((_, i) => i !== index));
+  const saveRecording = () => {
+    // Already saved to recordings list on stop — this just confirms
+    stopRecording();
+  };
+
+  const deleteRecording = (index) => {
+    setRecordings(prev => prev.filter((_, i) => i !== index));
   };
 
   const togglePlay = (index) => {
@@ -144,37 +176,56 @@ const ScriptEditor = () => {
     }
   };
 
-  const formatTime = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+  const formatTime = (s) =>
+    `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
-  // ── Save & Submit ──────────────────────────────────────────
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      await api.put(`/projects/${projectId}/script`, { script_text: scriptText });
-      setSavedMsg('Saved!');
-      toast('Draft saved successfully', 'success');
-      setTimeout(() => setSavedMsg(''), 2000);
-    } catch (err) {
-      console.error(err);
-      toast('Failed to save draft', 'error');
-    } finally {
-      setSaving(false);
-    }
-  };
+  // ── Form completion check ───────────────────────────────────
+  const isFormComplete = uploadType === 'pdf'
+    ? !!pdfUrl
+    : (!!audioFile || recordings.length > 0);
 
+  // ── Submit ──────────────────────────────────────────────────
   const handleSubmit = async () => {
-    if (!scriptText.trim()) {
-      toast('Please add some script text before submitting', 'warning');
+    if (uploadType === 'pdf' && !scriptText.trim() && !pdfUrl) {
+      toast('Please upload a PDF or add script text before submitting', 'warning');
+      return;
+    }
+    if (uploadType === 'audio' && !audioFile && recordings.length === 0) {
+      toast('Please upload or record audio before submitting', 'warning');
       return;
     }
     setSubmitting(true);
     try {
-      await api.put(`/projects/${projectId}/script`, { script_text: scriptText });
-      await api.put(`/projects/${projectId}/status`, { status: 'processing' });
-      navigate(`/workspace/${workspaceId}/project/${projectId}/submitted`,
-        { state: { workspaceName } });
+      await api.put(`/projects/${projectId}/script`, {
+        script_text: scriptText,
+        additional_notes: additionalNotes,
+      });
+
+      if (uploadType === 'audio') {
+        // If user recorded blobs (not uploaded via file picker), upload the first one now
+        let uploadedAudioFiles = recordings;
+        if (recordings.length > 0 && recordings[0].blob) {
+          const formData = new FormData();
+          formData.append('file', recordings[0].blob, 'recording.webm');
+          try {
+            const res = await api.post(`/projects/${projectId}/upload-audio`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            });
+            uploadedAudioFiles = [{ name: recordings[0].name, url: res.data.url }, ...recordings.slice(1)];
+          } catch {
+            // Keep local blob URL as fallback — transcription will fail gracefully
+          }
+        }
+        navigate(`/workspace/${workspaceId}/project/${projectId}/audio-preview`,
+          { state: { workspaceName, audioFiles: uploadedAudioFiles } });
+      } else {
+        await api.put(`/projects/${projectId}/status`, { status: 'processing' });
+        navigate(`/workspace/${workspaceId}/project/${projectId}/submitted`,
+          { state: { workspaceName } });
+      }
     } catch (err) {
       console.error(err);
+      toast('Failed to submit script', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -184,187 +235,288 @@ const ScriptEditor = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-6">
+      <main className="flex-1 px-[60px] py-[51px]">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm mb-6">
+        <div className="flex items-center gap-2 mb-9">
           <button
             onClick={() => navigate(`/workspace/${workspaceId}/upload`, { state: { workspaceName } })}
-            className="text-gray-400 hover:text-gray-600 transition flex items-center gap-1"
+            className="cursor-pointer"
           >
-            ← Back
+            <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
-          <span className="text-gray-300">/</span>
-          <span className="text-gray-500">{workspaceName}</span>
-          <span className="text-gray-300">/</span>
-          <span className="text-gray-900 font-semibold">
+          <span className="text-text-h1 text-[34px] leading-12 font-medium">{workspaceName} /</span>
+          <span className="font-light text-[30px] leading-10 text-[#A7A7A7]">
             {uploadType === 'pdf' ? 'Upload Script (PDF)' : 'Upload Script (Audio)'}
           </span>
         </div>
 
         {/* Split panel */}
-        <div className="flex gap-6 h-[calc(100vh-240px)]">
+        <div className="flex gap-6" style={{ minHeight: 'calc(100vh - 300px)' }}>
 
           {/* ── LEFT PANEL ── */}
-          <div className="w-[50%] flex flex-col gap-4">
+          <div className="w-[650px] flex flex-col">
 
             {uploadType === 'pdf' ? (
-              /* PDF Upload */
-              <div className="flex flex-col gap-3">
-                <p className="text-sm font-semibold text-gray-800">Upload your script here *</p>
-                <div
-                  onClick={() => pdfInputRef.current?.click()}
-                  className="border-2 border-dashed border-gray-300 rounded-xl h-[165px] flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition"
-                >
-                  {pdfUploading ? (
-                    <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                  ) : pdfFile ? (
-                    <>
-                      <BsFilePdf size={36} className="text-red-400" />
-                      <p className="text-sm text-gray-600 font-medium">{pdfFile.name}</p>
-                      {pdfUrl && <p className="text-xs text-green-600">✓ Uploaded</p>}
-                    </>
-                  ) : (
-                    <>
-                      <BsUpload size={32} className="text-gray-400" />
-                      <p className="text-sm text-gray-500">Click to upload PDF</p>
-                      <p className="text-xs text-gray-400">PDF files only</p>
-                    </>
-                  )}
-                </div>
-                <input ref={pdfInputRef} type="file" accept=".pdf" className="hidden" onChange={handlePdfSelect} />
-                <button
-                  onClick={() => pdfInputRef.current?.click()}
-                  className="self-start flex items-center gap-2 h-[38px] px-4 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
-                >
-                  <MdAdd size={16} /> Add PDF
-                </button>
-              </div>
-            ) : (
-              /* Audio Upload + Record */
-              <div className="flex flex-col gap-4 flex-1 overflow-hidden">
-                {/* Upload audio file */}
+              <>
+                {/* Upload zone */}
                 <div>
-                  <p className="text-sm font-semibold text-gray-800 mb-2">Upload your audio file here</p>
+                  <p className="font-normal text-lg leading-[130%] text-[#5D586C] mb-3">
+                    Upload your script here <span className="text-[#EA4335]">*</span>
+                  </p>
+
+                  {/* Dropzone */}
                   <div
-                    onClick={() => audioInputRef.current?.click()}
-                    className="border-2 border-dashed border-gray-300 rounded-xl h-[120px] flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition"
+                    onClick={() => !pdfFile && pdfInputRef.current?.click()}
+                    className={`relative border-2 border-dashed rounded-[6px] h-[165px] flex flex-col items-center justify-center mb-9 transition
+                      ${pdfFile
+                        ? 'border-brand-color bg-[#F2F8FF] cursor-default'
+                        : 'border-brand-color bg-[#F2F8FF] cursor-pointer hover:bg-blue-50'
+                      }`}
                   >
-                    {audioUploading ? (
-                      <div className="w-6 h-6 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                    {pdfUploading ? (
+                      <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                    ) : pdfFile ? (
+                      <>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleRemovePdf(); }}
+                        // className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 text-lg leading-none"
+                        >
+                          <img src="/assets/icons/pdf-delete.svg" alt="" className='cursor-pointer absolute top-2 right-2' />
+                        </button>
+                        <div className="flex flex-col items-center">
+                          <img src="/assets/icons/pdf-uploaded.svg" alt="" className='mb-[6px]' />
+                          <p className="text-xs font-normal text-[#00B215] mb-1">Uploaded</p>
+                          <p className="text-sm font-normal text-text-h2">{pdfFile.name}</p>
+                        </div>
+                      </>
                     ) : (
                       <>
-                        <BsMicFill size={28} className="text-indigo-400" />
-                        <p className="text-sm text-gray-500">Click to upload audio</p>
-                        <p className="text-xs text-gray-400">MP3, WAV, OGG, M4A</p>
+                        <img src="/assets/icons/file-upload.svg" alt="" className="mb-[6px]" />
+                        <p className="text-sm font-normal text-text-h2 mb-1">Choose a file or drag & drop it here</p>
+                        <p className="text-xs font-normal text-[#B4B3B9] mb-1">(max 5MB Accepted format: jpg, png, pdf)</p>
+                        <p className="text-xs font-normal text-brand-color">Browse File</p>
+                      </>
+                    )}
+                  </div>
+                  <input ref={pdfInputRef} type="file" accept=".pdf" className="hidden" onChange={handlePdfSelect} />
+                </div>
+
+                {/* Upload Script button — blue filled, matches Figma */}
+                <button
+                  onClick={() => pdfInputRef.current?.click()}
+                  className="self-start flex items-center gap-2 h-[38px] px-5 bg-brand-color hover:bg-blue-700 text-white text-[15px] leading-[18px] font-medium rounded-[6px] transition mb-[54px]"
+                >
+                  <img src="/assets/icons/upload-script-plus.svg" alt="" /> Upload Script
+                </button>
+
+                {/* Script text area */}
+                <div className="flex flex-col flex-1">
+                  <p className="font-normal text-lg leading-[130%] text-[#5D586C] mb-1">Add a script or notes</p>
+                  <textarea
+                    value={scriptText}
+                    onChange={(e) => setScriptText(e.target.value)}
+                    className="flex-1 w-full px-4 py-3 border border-[#D9E1EC] rounded-[6px] font-normal text-[15px] leading-6 text-[#B4B3B9] placeholder-gray-400 focus:outline-none focus:border-brand-color focus:ring focus:ring-brand-color transition resize-none"
+                    style={{ minHeight: '636px' }}
+                  />
+                </div>
+              </>
+            ) : (
+              /* ── AUDIO UPLOAD + RECORD ── */
+              <div className="flex flex-col">
+
+                {/* Upload dropzone */}
+                <div>
+                  <p className="font-normal text-lg leading-[130%] text-[#5D586C] mb-3">Upload your audio file here</p>
+                  <div
+                    onClick={() => !audioFile && audioInputRef.current?.click()}
+                    className={`relative border-2 border-dashed rounded-[6px] h-[165px] flex flex-col items-center justify-center mb-9 transition
+                      ${audioFile
+                        ? 'border-brand-color bg-[#F2F8FF] cursor-default'
+                        : 'border-brand-color bg-[#F2F8FF] cursor-pointer hover:bg-blue-50'
+                      }`}
+                  >
+                    {audioUploading ? (
+                      <div className="w-8 h-8 border-4 border-brand-color border-t-transparent rounded-full animate-spin" />
+                    ) : audioFile ? (
+                      <>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleRemoveAudio(); }}
+                        >
+                          <img src="/assets/icons/pdf-delete.svg" alt="" className='cursor-pointer absolute top-2 right-2' />
+                        </button>
+                        <div className="flex flex-col items-center">
+                          <img src="/assets/icons/audio-file-uploaded.svg" alt="" className='mb-[6px]' />
+                          <p className="text-xs font-normal text-[#00B215] mb-1">Uploaded</p>
+                          <p className="text-sm font-normal text-text-h2">{audioFile.name}</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <img src="/assets/icons/audio-file-upload.svg" alt="" className="mb-1" />
+                        <p className="text-sm font-normal text-text-h2 mb-1">Drop your audio file here</p>
+                        <p className="text-xs font-normal text-brand-color mb-1">Browse File</p>
+                        <p className="text-xs font-normal text-[#B4B3B9]">(supports MP3, WAV, FLAC and more)</p>
                       </>
                     )}
                   </div>
                   <input ref={audioInputRef} type="file" accept="audio/*" className="hidden" onChange={handleAudioSelect} />
                 </div>
 
-                {/* Record audio */}
+                {/* Upload Script button */}
+                <button
+                  onClick={() => audioInputRef.current?.click()}
+                  className="self-start flex items-center gap-2 h-[38px] px-5 bg-brand-color hover:bg-blue-700 text-white text-[15px] leading-[18px] font-medium rounded-[6px] transition mb-[54px]"
+                >
+                  <img src="/assets/icons/upload-script-plus.svg" alt="" /> Upload Script
+                </button>
+
+                {/* Record section */}
                 <div>
-                  <p className="text-sm font-semibold text-gray-800 mb-2">Record your audio here</p>
-                  <div className="border border-gray-200 rounded-xl p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-mono text-gray-600">{formatTime(recordingTime)}</span>
+                  <p className="font-normal text-lg leading-[130%] text-[#5D586C] mb-3">Record your audio here</p>
+
+                  {/* Recording widget */}
+                  <div className="border border-input-border rounded-[6px] p-4 mb-7">
+
+                    {/* Active recording — shows label + waveform */}
+                    {recording && (
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm leading-[150%] font-medium text-brand-color">
+                          Audio {recordings.length + 1}
+                        </span>
+                        <button
+                          onClick={stopRecording}
+                          className='cursor-pointer'
+                        >
+                          <img src="/assets/icons/delete-audio-1.svg" alt="" />
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Waveform / flat line */}
+                    <div className="border border-gray-200 rounded-[6px] h-[52px] flex items-center px-3 mb-2 overflow-hidden">
+                      {recording ? (
+                        <WaveformDisplay active />
+                      ) : (
+                        <div className="w-full h-px bg-gray-200" />
+                      )}
+                    </div>
+
+                    {/* Timer + controls */}
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-lg leading-[150%] text-[#4A4755]">{formatTime(recordingTime)}</span>
                       <div className="flex items-center gap-2">
                         {!recording ? (
                           <button
                             onClick={startRecording}
-                            className="flex items-center gap-1.5 h-[34px] px-4 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-lg transition"
+                            className="flex items-center gap-2 h-[38px] px-5 bg-brand-color hover:bg-blue-700 text-white text-sm leading-[150%] font-medium rounded-[6px] transition cursor-pointer"
                           >
-                            <BsMicFill size={12} /> Record
+                            <BsMicFill size={13} /> Record
                           </button>
                         ) : (
                           <>
                             <button
-                              onClick={stopRecording}
-                              className="flex items-center gap-1.5 h-[34px] px-4 bg-gray-700 hover:bg-gray-800 text-white text-xs font-semibold rounded-lg transition"
+                              onClick={pauseRecording}
+                              className="flex items-center gap-1.5 h-[38px] px-4 bg-[#D9DDE9] hover:bg-gray-200 text-[#1E1E1E] text-sm font-medium rounded-[6px] transition cursor-pointer"
                             >
-                              <MdStop size={14} /> Stop
+                              <img src="/assets/icons/pause-audio.svg" alt="" /> {paused ? 'Resume' : 'Pause'}
                             </button>
-                            <span className="flex items-center gap-1 text-xs text-red-500 font-medium">
-                              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                              Recording...
-                            </span>
+                            <button
+                              onClick={stopRecording}
+                              className="flex items-center gap-1.5 h-[38px] px-4 bg-[#D9DDE9] hover:bg-gray-200 text-[#1E1E1E] text-sm font-medium rounded-[6px] transition cursor-pointer"
+                            >
+                              <img src="/assets/icons/stop-audio.svg" alt="" /> Stop
+                            </button>
+                            <button
+                              onClick={saveRecording}
+                              className="flex items-center gap-2 h-[38px] px-5 bg-brand-color hover:bg-blue-700 text-white text-sm font-medium rounded-[6px] transition cursor-pointer"
+                            >
+                              <img src="/assets/icons/save-audio.svg" alt="" /> Save Audio
+                            </button>
                           </>
                         )}
                       </div>
                     </div>
-
-                    {/* Audio list */}
-                    <div className="space-y-2 max-h-[180px] overflow-y-auto">
-                      {audioFiles.map((audio, i) => (
-                        <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2">
-                          <button
-                            onClick={() => togglePlay(i)}
-                            className="w-7 h-7 flex items-center justify-center bg-indigo-100 rounded-full text-indigo-600 hover:bg-indigo-200 transition shrink-0"
-                          >
-                            {playingIndex === i ? <MdPause size={14} /> : <MdPlayArrow size={14} />}
-                          </button>
-                          <audio ref={el => audioRefs.current[i] = el} src={audio.url} className="hidden" />
-                          <span className="text-xs text-gray-700 flex-1 truncate">{audio.name}</span>
-                          <button
-                            onClick={() => deleteAudio(i)}
-                            className="text-gray-400 hover:text-red-500 transition shrink-0"
-                          >
-                            <MdDelete size={15} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
                   </div>
 
+                  {/* Record multiple audio button */}
                   <button
-                    onClick={() => audioInputRef.current?.click()}
-                    className="mt-2 flex items-center gap-2 h-[34px] px-4 border border-gray-300 text-gray-600 text-xs font-medium rounded-lg hover:bg-gray-50 transition"
+                    onClick={startRecording}
+                    disabled={recording}
+                    className="flex items-center gap-2 h-[38px] px-5 bg-brand-color hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-[6px] transition mb-9"
                   >
-                    <MdAdd size={14} /> Add more audio
+                    <MdAdd size={16} /> Record multiple audio
                   </button>
+
+                  {/* Saved recordings list */}
+                  <div className="space-y-[18px]">
+                    {recordings.map((rec, i) => (
+                      <div key={i} className="border border-gray-200 rounded-[6px] py-2 px-3.5 text-end">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-sm leading-[150%] font-medium text-brand-color">{rec.name}</span>
+                          <button
+                            onClick={() => deleteRecording(i)}
+                            className="cursor-pointer"
+                          >
+                            <img src="/assets/icons/delete-audio-2.svg" alt="" />
+                          </button>
+                        </div>
+                        <div className="flex items-center bg-[#FAFBFF] rounded">
+                          <button
+                            onClick={() => togglePlay(i)}
+                            className="w-6 h-6 flex items-center justify-center text-gray-500 hover:text-brand-color transition shrink-0"
+                          >
+                            {playingIndex === i ? <MdPause size={16} className='cursor-pointer' /> : <img src='/assets/icons/audio-play.svg' alt='' className='cursor-pointer' />}
+                          </button>
+                          <audio ref={el => audioRefs.current[i] = el} src={rec.url} className="hidden" />
+                          {/* Waveform bars */}
+                          <div className="rounded-[6px] flex items-center gap-px flex-1 h-[52px] px-2 overflow-hidden">
+                            <WaveformDisplay />
+                          </div>
+                        </div>
+                        <span className="font-medium text-xs leading-[150%] text-[#4A4755]">{formatTime(Math.round(audioRefs.current[i]?.duration || 0))}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* ── RIGHT PANEL — Script Text Editor ── */}
-          <div className="w-[50%] flex flex-col">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm font-semibold text-gray-800">
-                {uploadType === 'pdf' ? 'Preview / Edit Script' : 'Transcribed Script'}
-              </p>
-              {savedMsg && (
-                <span className="text-xs text-green-600 font-medium">{savedMsg}</span>
-              )}
-            </div>
+          {/* ── RIGHT PANEL — Additional Notes / Audio Preview ── */}
+          <div className="flex-1 flex flex-col">
+            <p className="font-normal text-lg leading-[130%] text-[#5D586C] mb-1">
+              {uploadType === 'audio' ? 'Preview text of audio Extract' : 'Add Additional Notes'}
+            </p>
             <textarea
-              value={scriptText}
-              onChange={(e) => setScriptText(e.target.value)}
-              placeholder="Your script text will appear here. You can also type or paste directly..."
-              className="flex-1 w-full px-4 py-3 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition resize-none leading-relaxed"
+              value={uploadType === 'audio' ? scriptText : additionalNotes}
+              onChange={(e) => uploadType === 'audio'
+                ? setScriptText(e.target.value)
+                : setAdditionalNotes(e.target.value)
+              }
+              placeholder={uploadType === 'audio' ? '' : 'Input text'}
+              readOnly={uploadType === 'audio'}
+              className="flex-1 w-full px-4 py-3 border border-[#D9E1EC] rounded-[6px] font-normal text-[15px] leading-6 text-[#B4B3B9] placeholder-gray-400 focus:outline-none focus:border-brand-color focus:ring focus:ring-brand-color transition resize-none"
+              style={{ minHeight: '560px' }}
             />
           </div>
         </div>
 
-        {/* Bottom action bar */}
-        <div className="flex items-center justify-between mt-5">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-2 h-[38px] px-5 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
-          >
-            <MdSave size={16} />
-            {saving ? 'Saving...' : 'Save Draft'}
-          </button>
-
-          <button
-            onClick={handleSubmit}
-            disabled={submitting || !scriptText.trim()}
-            className="flex items-center gap-2 h-[38px] px-6 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-sm font-semibold rounded-lg transition"
-          >
-            <LuSend size={15} />
-            {submitting ? 'Submitting...' : 'Submit Script'}
-          </button>
+        {/* Bottom — Submit button bottom left */}
+        <div className="mt-6">
+          {(uploadType === 'pdf' || isFormComplete) && (
+            <button
+              onClick={handleSubmit}
+              disabled={submitting || !isFormComplete}
+              className={`flex items-center gap-2 h-[38px] px-6 bg-brand-color text-white text-[15px] leading-[18px] font-medium rounded-[6px] transition
+                ${isFormComplete ? 'opacity-100 hover:bg-blue-700 cursor-pointer' : 'opacity-65 cursor-not-allowed'}`}
+            >
+              {uploadType === 'audio'
+                ? <MdSave size={18} />
+                : <img src="/assets/icons/pdf-submit.svg" alt="" />
+              }
+              {submitting ? 'Submitting...' : uploadType === 'audio' ? 'Save and submit' : 'Submit'}
+            </button>
+          )}
         </div>
       </main>
 
@@ -372,5 +524,51 @@ const ScriptEditor = () => {
     </div>
   );
 };
+
+// ── Waveform component — clusters + dotted baseline from start to end ──
+const CLUSTERS = 4;
+const BARS_PER_CLUSTER = 18;
+
+const clusterHeights = Array.from({ length: CLUSTERS }, (_, c) =>
+  Array.from({ length: BARS_PER_CLUSTER }, (_, b) => {
+    return Math.abs(Math.sin((c * 3.7 + b) * 0.55) * 18 + Math.sin((c * 2.1 + b) * 1.1) * 8) + 4;
+  })
+);
+
+const WaveformDisplay = ({ active = false }) => (
+  <div className="relative flex items-center w-full h-full overflow-hidden">
+    {/* Continuous dotted baseline — runs full width behind everything */}
+    <div className="absolute inset-x-0 flex items-center justify-between px-1" style={{ top: '50%', transform: 'translateY(-50%)' }}>
+      {Array.from({ length: 120 }).map((_, i) => (
+        <div key={i} className="w-px h-px rounded-full bg-brand-color opacity-50 shrink-0" />
+      ))}
+    </div>
+
+    {/* Clusters + vertical markers on top of the dotted line */}
+    <div className="relative flex items-center justify-between w-full h-full z-10">
+      {Array.from({ length: CLUSTERS }).map((_, c) => (
+        <div key={c} className="flex items-center gap-px">
+          {/* Dense bar cluster */}
+          {clusterHeights[c].map((h, b) => (
+            <div
+              key={b}
+              className={`w-px rounded-full bg-brand-color ${active ? 'animate-pulse' : ''}`}
+              style={{
+                height: `${h}px`,
+                animationDelay: active ? `${(c * BARS_PER_CLUSTER + b) * 0.02}s` : undefined,
+                animationDuration: active ? `${0.5 + (b % 4) * 0.15}s` : undefined,
+              }}
+            />
+          ))}
+          {/* Vertical marker at end of cluster — with dot on top */}
+          <div className="relative mx-0.5 shrink-0" style={{ width: '0.5px', height: '40px' }}>
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-brand-color" />
+            <div className="w-full h-full bg-brand-color" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 export default ScriptEditor;

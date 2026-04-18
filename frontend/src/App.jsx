@@ -23,6 +23,7 @@ import WorkspaceProjects from './pages/dashboard/WorkspaceProjects';
 // Project flow
 import UploadScript from './pages/project/UploadScript';
 import ScriptEditor from './pages/project/ScriptEditor';
+import AudioPreview from './pages/project/AudioPreview';
 import ScriptSubmitted from './pages/project/ScriptSubmitted';
 import AIQuestions from './pages/project/AIQuestions';
 import Preview from './pages/project/Preview';
@@ -63,6 +64,7 @@ function App() {
             {/* Project flow */}
             <Route path="/workspace/:workspaceId/upload" element={<ProtectedRoute><UploadScript /></ProtectedRoute>} />
             <Route path="/workspace/:workspaceId/project/:projectId/editor" element={<ProtectedRoute><ScriptEditor /></ProtectedRoute>} />
+            <Route path="/workspace/:workspaceId/project/:projectId/audio-preview" element={<ProtectedRoute><AudioPreview /></ProtectedRoute>} />
             <Route path="/workspace/:workspaceId/project/:projectId/submitted" element={<ProtectedRoute><ScriptSubmitted /></ProtectedRoute>} />
             <Route path="/workspace/:workspaceId/project/:projectId/questions" element={<ProtectedRoute><AIQuestions /></ProtectedRoute>} />
             <Route path="/workspace/:workspaceId/project/:projectId/preview" element={<ProtectedRoute><Preview /></ProtectedRoute>} />

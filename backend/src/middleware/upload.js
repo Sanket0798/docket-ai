@@ -15,7 +15,7 @@ const audioStorage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: 'docket-factory/audio',
-    allowed_formats: ['mp3', 'wav', 'ogg', 'm4a'],
+    allowed_formats: ['mp3', 'wav', 'ogg', 'm4a', 'webm'],
     resource_type: 'video',
   },
 });
