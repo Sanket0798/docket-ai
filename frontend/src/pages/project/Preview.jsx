@@ -101,11 +101,11 @@ const Preview = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-[51px]">
+      <main className="flex-1 px-4 lg:px-[60px] py-[51px]">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-[58px]">
-          <span className="text-text-h1 text-[34px] leading-12 font-medium">{workspaceName} /</span>
-          <span className="font-light text-[30px] leading-10 text-[#A7A7A7]">my_project</span>
+          <span className="text-text-h1 text-[22px] lg:text-[34px] leading-12 font-medium truncate">{workspaceName} /</span>
+          <span className="font-light text-[18px] lg:text-[30px] leading-10 text-[#A7A7A7] truncate">my_project</span>
         </div>
 
         {/* Heading */}
@@ -117,7 +117,7 @@ const Preview = () => {
           >
             <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
-          <h1 className="font-medium text-[34px] leading-[48px] text-text-h1">Preview</h1>
+          <h1 className="font-medium text-[22px] lg:text-[34px] leading-[48px] text-text-h1">Preview</h1>
         </div>
         <p className="font-normal text-lg leading-[130%] text-[#5D586C] mb-9" style={{ fontFamily: 'Geist, sans-serif' }}>All selected generates in one place</p>
 
@@ -136,8 +136,8 @@ const Preview = () => {
                   <h2 className="font-medium text-[22px] leading-8 text-text-h1 mb-2">{section.question}</h2>
                   <p className="font-normal text-sm leading-[130%] text-[#5D586C] mb-5">{section.subtitle}</p>
 
-                  {/* Selected image grid — 4 cols */}
-                  <div className="grid grid-cols-4 gap-3">
+                  {/* Selected image grid — 2 cols on mobile, 4 on desktop */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                     {Array.from({ length: section.selectedCount }).map((_, i) => {
                       const key = `${si}-${i}`;
                       if (deleted[key]) return null;
@@ -217,11 +217,11 @@ const Preview = () => {
           onClick={() => setShowConfirm(false)}
         >
           <div
-            className="bg-white border border-[#CAC9CD] rounded-[6px] w-full max-w-[1000px] h-[488px] mx-4 flex flex-col items-center justify-center text-center"
+            className="bg-white border border-[#CAC9CD] rounded-[6px] w-full max-w-[560px] lg:max-w-[1000px] lg:h-[488px] mx-4 px-6 py-10 flex flex-col items-center justify-center text-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="font-bold text-[34px] leading-[48px] text-text-h1 mb-1">Are you sure ?</h2>
-            <p className="font-normal text-lg leading-[130%] text-[#5D586C] mb-5">
+            <h2 className="font-bold text-[26px] lg:text-[34px] leading-[48px] text-text-h1 mb-1">Are you sure ?</h2>
+            <p className="font-normal text-base lg:text-lg leading-[130%] text-[#5D586C] mb-5">
               Are you sure you want to save and export? No changes can be<br />done once file is exported
             </p>
             <div className="flex items-center justify-center gap-6">

@@ -141,7 +141,7 @@ const AudioPreview = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-[51px]">
+      <main className="flex-1 px-4 lg:px-[60px] py-[51px]">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-9">
           <button
@@ -151,14 +151,14 @@ const AudioPreview = () => {
           >
             <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
-          <span className="text-text-h1 text-[34px] leading-12 font-medium">{workspaceName} /</span>
-          <span className="font-light text-[30px] leading-10 text-[#A7A7A7]">my_project</span>
+          <span className="text-text-h1 text-[22px] lg:text-[34px] leading-12 font-medium truncate">{workspaceName} /</span>
+          <span className="font-light text-[18px] lg:text-[30px] leading-10 text-[#A7A7A7] truncate">my_project</span>
         </div>
 
-        <div className="flex gap-6">
+        <div className="flex flex-col lg:flex-row gap-6">
 
           {/* ── LEFT — Uploaded audio files list ── */}
-          <div className="w-[393px] flex flex-col">
+          <div className="w-full lg:w-[393px] flex flex-col">
             <p className="font-normal text-lg leading-[130%] text-[#5D586C] mb-2">Uploaded audio files</p>
 
             {audioFiles.length === 0 ? (
@@ -256,7 +256,7 @@ const AudioPreview = () => {
             </div>
 
             {/* Bottom actions */}
-            <div className="flex items-center justify-between mt-[45px]">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-[45px]">
               {/* Copy + Edit — only when completed */}
               {status === 'completed' ? (
                 <div className="flex items-center gap-3">

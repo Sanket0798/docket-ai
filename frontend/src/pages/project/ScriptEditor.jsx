@@ -235,7 +235,7 @@ const ScriptEditor = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-[51px]">
+      <main className="flex-1 px-4 lg:px-[60px] py-[51px]">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-9">
           <button
@@ -244,17 +244,17 @@ const ScriptEditor = () => {
           >
             <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
-          <span className="text-text-h1 text-[34px] leading-12 font-medium">{workspaceName} /</span>
-          <span className="font-light text-[30px] leading-10 text-[#A7A7A7]">
+          <span className="text-text-h1 text-[22px] lg:text-[34px] leading-12 font-medium truncate">{workspaceName} /</span>
+          <span className="font-light text-[18px] lg:text-[30px] leading-10 text-[#A7A7A7] truncate">
             {uploadType === 'pdf' ? 'Upload Script (PDF)' : 'Upload Script (Audio)'}
           </span>
         </div>
 
         {/* Split panel */}
-        <div className="flex gap-6" style={{ minHeight: 'calc(100vh - 300px)' }}>
+        <div className="flex flex-col lg:flex-row gap-6" style={{ minHeight: 'calc(100vh - 300px)' }}>
 
           {/* ── LEFT PANEL ── */}
-          <div className="w-[650px] flex flex-col">
+          <div className="w-full lg:w-[650px] flex flex-col">
 
             {uploadType === 'pdf' ? (
               <>
@@ -402,9 +402,9 @@ const ScriptEditor = () => {
                     </div>
 
                     {/* Timer + controls */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="font-medium text-lg leading-[150%] text-[#4A4755]">{formatTime(recordingTime)}</span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         {!recording ? (
                           <button
                             onClick={startRecording}

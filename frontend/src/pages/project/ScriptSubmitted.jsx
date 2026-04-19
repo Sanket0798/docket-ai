@@ -24,11 +24,11 @@ const ScriptSubmitted = () => {
         <img
           src="/assets/icons/film-rolls.svg"
           alt="Film rolls"
-          className="w-[376px] mb-8"
+          className="w-[200px] lg:w-[376px] mb-8"
         />
 
         {/* Heading */}
-        <h1 className="text-[28px] font-bold text-brand-color mb-3">
+        <h1 className="text-[22px] lg:text-[28px] font-bold text-brand-color mb-3">
           Your script is been submitted!
         </h1>
 

@@ -15,7 +15,7 @@ const ExportSuccess = () => {
         />
 
         {/* Heading */}
-        <h1 className="font-bold text-[40px] leading-7 text-[#3362CC] mb-8">
+        <h1 className="font-bold text-[28px] lg:text-[40px] leading-7 text-[#3362CC] mb-8">
           Video Exported Successfully!
         </h1>
 

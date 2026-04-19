@@ -136,7 +136,7 @@ const AIQuestions = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-[51px]">
+      <main className="flex-1 px-4 lg:px-[60px] py-[51px]">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-9">
           <button
@@ -146,16 +146,16 @@ const AIQuestions = () => {
           >
             <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
-          <span className="text-text-h1 text-[34px] leading-12 font-medium">{workspaceName} /</span>
-          <span className="font-light text-[30px] leading-10 text-[#A7A7A7]">my_project</span>
+          <span className="text-text-h1 text-[22px] lg:text-[34px] leading-12 font-medium truncate">{workspaceName} /</span>
+          <span className="font-light text-[18px] lg:text-[30px] leading-10 text-[#A7A7A7] truncate">my_project</span>
         </div>
 
         {/* Question heading */}
         <div className="mb-8">
-          <h1 className="font-medium text-[34px] leading-[48px] text-text-h1 mb-2">
+          <h1 className="font-medium text-[22px] lg:text-[34px] leading-[48px] text-text-h1 mb-2">
             {question.question}
           </h1>
-          <p className="font-normal text-lg leading-[130%] text-[#5D586C]">{question.subtitle}</p>
+          <p className="font-normal text-base lg:text-lg leading-[130%] text-[#5D586C]">{question.subtitle}</p>
         </div>
 
         {/* Image grid */}
@@ -180,7 +180,7 @@ const AIQuestions = () => {
           </div>
         ) : (
           <div className="mb-4">
-            <div className="grid grid-cols-4 gap-x-5 gap-y-8 max-w-[1321px] mx-auto">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-8 max-w-[1321px] mx-auto">
               {Array.from({ length: cardCount }).map((_, i) => {
                 const isSelected = selectedSet.has(i);
                 return (
@@ -234,7 +234,7 @@ const AIQuestions = () => {
 
         {/* Bottom bar — credits + generate more (left) | navigation (right) */}
         {!loading && (
-          <div className="flex items-end justify-between mt-8">
+          <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-5 mt-8">
             {/* Left — credits + generate more */}
             <div className="flex flex-col gap-4">
               <p className="font-medium text-base leading-7 text-brand-color">
@@ -253,7 +253,7 @@ const AIQuestions = () => {
             </div>
 
             {/* Right — prev / next */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={handleBack}
                 disabled={currentStep === 0}

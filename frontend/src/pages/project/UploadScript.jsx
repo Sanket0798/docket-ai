@@ -42,7 +42,7 @@ const UploadScript = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-[51px]">
+      <main className="flex-1 px-4 lg:px-[60px] py-[51px]">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-9">
           <button
@@ -51,13 +51,13 @@ const UploadScript = () => {
           >
             <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
-          <span className="text-text-h1 text-[34px] leading-12 font-medium">{workspaceName} /</span>
-          <span className="font-light text-[30px] leading-10 text-[#A7A7A7]">New Project</span>
+          <span className="text-text-h1 text-[22px] lg:text-[34px] leading-12 font-medium truncate">{workspaceName} /</span>
+          <span className="font-light text-[18px] lg:text-[30px] leading-10 text-[#A7A7A7] truncate">New Project</span>
         </div>
 
         {/* Heading */}
         <div className="text-center mb-9">
-          <h1 className="text-text-h1 font-medium text-[26px] leading-9 mb-[6px]">
+          <h1 className="text-text-h1 font-medium text-[20px] lg:text-[26px] leading-9 mb-[6px]">
             Choose a way to upload a script
           </h1>
           <p className="text-[15px] text-text-h2 leading-[22px] font-normal">
@@ -66,12 +66,12 @@ const UploadScript = () => {
         </div>
 
         {/* Choice cards */}
-        <div className="flex items-center justify-center gap-7">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-5 lg:gap-7">
           {/* PDF */}
           <button
             onClick={() => handleChoice('pdf')}
             disabled={creating}
-            className="group flex flex-col items-center justify-center gap-4 w-[365px] h-[163px] border border-[#818181]/50 rounded hover:border-indigo-400 hover:bg-[#F9F9F9] cursor-pointer transition disabled:opacity-50"
+            className="group flex flex-col items-center justify-center gap-4 w-full sm:w-[365px] h-[163px] border border-[#818181]/50 rounded hover:border-indigo-400 hover:bg-[#F9F9F9] cursor-pointer transition disabled:opacity-50"
           >
             <img src="/assets/icons/pdf-upload.svg" alt="" />
             <span className="font-medium text-xl leading-7 text-[#525252] group-hover:text-brand-color transition">
@@ -83,7 +83,7 @@ const UploadScript = () => {
           <button
             onClick={() => handleChoice('audio')}
             disabled={creating}
-            className="group flex flex-col items-center justify-center gap-4 w-[365px] h-[163px] border border-[#818181]/50 rounded hover:border-indigo-400 hover:bg-[#F9F9F9] cursor-pointer transition disabled:opacity-50"
+            className="group flex flex-col items-center justify-center gap-4 w-full sm:w-[365px] h-[163px] border border-[#818181]/50 rounded hover:border-indigo-400 hover:bg-[#F9F9F9] cursor-pointer transition disabled:opacity-50"
           >
             <img src="/assets/icons/mp3-upload.svg" alt="" />
             <span className="font-medium text-xl leading-7 text-[#525252] group-hover:text-brand-color transition">

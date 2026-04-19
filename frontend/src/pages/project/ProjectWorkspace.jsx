@@ -149,12 +149,12 @@ const ProjectWorkspace = () => {
       <Navbar />
 
       {/* ── Page header ── */}
-      <div className="px-[60px] pt-8 pb-[74px] flex items-center justify-between">
+      <div className="px-4 lg:px-[60px] pt-8 pb-6 lg:pb-[74px] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button className="cursor-pointer">
             <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
-          <span className="text-text-h1 text-[34px] leading-[48px] font-medium">my_project</span>
+          <span className="text-text-h1 text-[22px] lg:text-[34px] leading-[48px] font-medium">my_project</span>
         </div>
         <div className="flex items-center gap-4">
           <button className="flex items-center justify-center gap-2 w-[140px] h-[38px] px-5 bg-[#D9DDE9] rounded-[6px] text-[15px] font-medium text-[#4A4755] transition cursor-pointer">
@@ -169,11 +169,11 @@ const ProjectWorkspace = () => {
       </div>
 
       {/* ── Three-column layout ── */}
-      <main className="flex-1 px-[60px] pb-[74px]">
-        <div className="flex gap-5 h-full">
+      <main className="flex-1 px-4 lg:px-[60px] pb-10 lg:pb-[74px]">
+        <div className="flex flex-col lg:flex-row gap-5 h-full">
 
           {/* ══ LEFT PANEL — File manager ══ */}
-          <div className="w-[316px] shrink-0 flex flex-col gap-5">
+          <div className="w-full lg:w-[316px] lg:shrink-0 flex flex-col gap-5">
 
             {/* Audio files */}
             <div className="border border-input-border rounded-[6px] p-4">
@@ -279,7 +279,7 @@ const ProjectWorkspace = () => {
                     <div key={q.id} className="mb-10">
                       <h3 className="font-medium text-[18px] text-[#4A4755] mb-1">{q.question}</h3>
                       <p className="text-sm text-[#5D586C] mb-4">{q.subtitle}</p>
-                      <div className="grid grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         {Array.from({ length: 8 }).map((_, cardIdx) => {
                           const key = `${qIdx}-${cardIdx}`;
                           const isSelected = !!selectedCards[key];
@@ -334,7 +334,7 @@ const ProjectWorkspace = () => {
           </div>
 
           {/* ══ RIGHT PANEL — Preview & Content ══ */}
-          <div className="w-[327px] shrink-0 flex flex-col">
+          <div className="w-full lg:w-[327px] lg:shrink-0 flex flex-col">
 
             {/* Preview section */}
             <div className="border border-input-border flex flex-col items-center justify-center py-10 px-4 min-h-[351px] rounded-t-[5px]">
