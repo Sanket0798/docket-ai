@@ -22,17 +22,17 @@ const Step1 = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center px-6 py-[192px]">
+    <div className="min-h-screen bg-white flex flex-col items-center px-6 py-10 lg:py-[192px]">
       {/* Progress bar */}
       <div className="w-full max-w-[700px] flex mb-5">
-        <div className="h-2 flex-1 bg-[#1958FF]" />
+        <div className="h-2 flex-1 bg-brand-text" />
         <div className="h-2 flex-1 bg-[#D9D9D9]" />
         <div className="h-2 flex-1 bg-[#D9D9D9]" />
       </div>
 
       {/* Heading */}
       <div className="w-full max-w-[700px] mb-14">
-        <h1 className="font-medium text-[25px] leading-9 text-text-h1">
+        <h1 className="font-medium text-[20px] lg:text-[25px] leading-9 text-text-h1">
           What kind of project are you planning to create right now?
         </h1>
         <p className="font-normal leading-[22px] text-[15px] text-text-h2">
@@ -40,15 +40,15 @@ const Step1 = () => {
         </p>
       </div>
 
-      {/* Cards grid — 2 columns, horizontal cards */}
-      <div className="w-full max-w-[700px] grid grid-cols-2 gap-4 mb-8">
+      {/* Cards grid — 1 col on mobile, 2 cols on sm+ */}
+      <div className="w-full max-w-[700px] grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
         {projectTypes.map((type) => (
           <button
             key={type.id}
             onClick={() => setSelected(type.id)}
             className={`flex items-center justify-center gap-3 px-5 h-[56px] cursor-pointer rounded-[5px] border transition-all text-left
               ${selected === type.id
-                ? 'border-[#1958FF] bg-indigo-50'
+                ? 'border-brand-text bg-indigo-50'
                 : 'border-[#C3C3C3] bg-white hover:border-indigo-300 hover:bg-gray-50'
               }`}
           >

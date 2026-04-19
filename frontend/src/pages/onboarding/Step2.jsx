@@ -16,17 +16,17 @@ const Step2 = () => {
   const handleBack = () => navigate('/onboarding/step1');
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center px-6 py-[192px]">
+    <div className="min-h-screen bg-white flex flex-col items-center px-6 py-10 lg:py-[192px]">
       {/* Progress bar */}
       <div className="w-full max-w-[700px] flex mb-5">
-        <div className="h-2 flex-1 bg-[#1958FF]" />
-        <div className="h-2 flex-1 bg-[#1958FF]" />
+        <div className="h-2 flex-1 bg-brand-text" />
+        <div className="h-2 flex-1 bg-brand-text" />
         <div className="h-2 flex-1 bg-[#D9D9D9]" />
       </div>
 
       {/* Heading */}
       <div className="w-full max-w-[700px] mb-8">
-        <h1 className="font-medium text-[25px] leading-9 text-text-h1">
+        <h1 className="font-medium text-[20px] lg:text-[25px] leading-9 text-text-h1">
           What kind of scenes or elements do you want to include?
         </h1>
         <p className="font-normal leading-[22px] text-[15px] text-text-h2">
