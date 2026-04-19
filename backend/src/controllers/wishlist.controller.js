@@ -1,31 +1,33 @@
 const { pool } = require('../config/db');
 
-// GET /api/wishlist — get all wishlist items for user
 const getWishlist = async (req, res) => {
   try {
     const { search, sort } = req.query;
+    const page  = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit = Math.min(50, parseInt(req.query.limit) || 12);
+    const offset = (page - 1) * limit;
 
-    let query = `
-      SELECT w.*, p.name as project_name
-      FROM wishlist w
-      LEFT JOIN projects p ON w.project_id = p.id
-      WHERE w.user_id = ?
-    `;
+    let countQuery = `SELECT COUNT(*) as total FROM wishlist w LEFT JOIN projects p ON w.project_id = p.id WHERE w.user_id = ?`;
+    let dataQuery  = `SELECT w.*, p.name as project_name FROM wishlist w LEFT JOIN projects p ON w.project_id = p.id WHERE w.user_id = ?`;
     const params = [req.user.id];
 
     if (search) {
-      query += ' AND p.name LIKE ?';
+      countQuery += ' AND p.name LIKE ?';
+      dataQuery  += ' AND p.name LIKE ?';
       params.push(`%${search}%`);
     }
 
-    if (sort === 'oldest') {
-      query += ' ORDER BY w.created_at ASC';
-    } else {
-      query += ' ORDER BY w.created_at DESC';
-    }
+    const [[{ total }]] = await pool.query(countQuery, params);
 
-    const [rows] = await pool.query(query, params);
-    res.json(rows);
+    dataQuery += sort === 'oldest' ? ' ORDER BY w.created_at ASC' : ' ORDER BY w.created_at DESC';
+    dataQuery += ' LIMIT ? OFFSET ?';
+
+    const [rows] = await pool.query(dataQuery, [...params, limit, offset]);
+
+    res.json({
+      data: rows,
+      pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

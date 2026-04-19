@@ -5,6 +5,7 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import Pagination from '../../components/Pagination';
 
 const Wishlist = () => {
   const navigate = useNavigate();
@@ -14,6 +15,9 @@ const Wishlist = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('newest');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const LIMIT = 12;
 
   // Select project modal
   const [showSelectProject, setShowSelectProject] = useState(false);
@@ -30,8 +34,9 @@ const Wishlist = () => {
   const fetchWishlist = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/wishlist', { params: { search, sort } });
-      setItems(res.data);
+      const res = await api.get('/wishlist', { params: { search, sort, page, limit: LIMIT } });
+      setItems(res.data.data);
+      setTotalPages(res.data.pagination.totalPages);
     } catch (err) {
       console.error(err);
     } finally {
@@ -39,17 +44,16 @@ const Wishlist = () => {
     }
   };
 
-  useEffect(() => { fetchWishlist(); }, [search, sort]);
+  useEffect(() => { fetchWishlist(); }, [search, sort, page]);
 
-  // Fetch all user projects for the select modal
+  // Fetch all user projects for the select modal — load all pages
   const fetchProjects = async () => {
     try {
-      // Get all workspaces then all projects
-      const wsRes = await api.get('/workspaces');
+      const wsRes = await api.get('/workspaces', { params: { limit: 50 } });
       const allProjects = [];
-      for (const ws of wsRes.data) {
-        const pRes = await api.get(`/projects/workspace/${ws.id}`);
-        allProjects.push(...pRes.data.map(p => ({ ...p, workspaceName: ws.name })));
+      for (const ws of wsRes.data.data) {
+        const pRes = await api.get(`/projects/workspace/${ws.id}`, { params: { limit: 50 } });
+        allProjects.push(...pRes.data.data.map(p => ({ ...p, workspaceName: ws.name })));
       }
       setProjects(allProjects);
     } catch (err) {
@@ -198,6 +202,7 @@ const Wishlist = () => {
             ))}
           </div>
         )}
+        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
       </main>
 
       <Footer />

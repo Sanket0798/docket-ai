@@ -2,16 +2,30 @@ const { pool } = require('../config/db');
 
 const getWorkspaces = async (req, res) => {
   try {
+    const page  = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit = Math.min(50, parseInt(req.query.limit) || 12);
+    const offset = (page - 1) * limit;
+
+    const [[{ total }]] = await pool.query(
+      'SELECT COUNT(*) as total FROM workspaces WHERE user_id = ?',
+      [req.user.id]
+    );
+
     const [rows] = await pool.query(
       `SELECT w.*, COUNT(p.id) as project_count 
        FROM workspaces w 
        LEFT JOIN projects p ON p.workspace_id = w.id 
        WHERE w.user_id = ? 
        GROUP BY w.id 
-       ORDER BY w.created_at DESC`,
-      [req.user.id]
+       ORDER BY w.created_at DESC
+       LIMIT ? OFFSET ?`,
+      [req.user.id, limit, offset]
     );
-    res.json(rows);
+
+    res.json({
+      data: rows,
+      pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

@@ -2,6 +2,14 @@ const { pool } = require('../config/db');
 
 const getQuestions = async (req, res) => {
   try {
+    // Verify the project belongs to the requesting user
+    const [project] = await pool.query(
+      'SELECT id FROM projects WHERE id = ? AND user_id = ?',
+      [req.params.projectId, req.user.id]
+    );
+    if (project.length === 0)
+      return res.status(404).json({ message: 'Project not found' });
+
     const [rows] = await pool.query(
       'SELECT * FROM project_questions WHERE project_id = ? ORDER BY question_order ASC',
       [req.params.projectId]
@@ -17,6 +25,14 @@ const saveQuestion = async (req, res) => {
   try {
     const { question, answer, question_order } = req.body;
     const projectId = req.params.projectId;
+
+    // Verify the project belongs to the requesting user
+    const [project] = await pool.query(
+      'SELECT id FROM projects WHERE id = ? AND user_id = ?',
+      [projectId, req.user.id]
+    );
+    if (project.length === 0)
+      return res.status(404).json({ message: 'Project not found' });
 
     // Upsert — update if same order exists, else insert
     const [existing] = await pool.query(

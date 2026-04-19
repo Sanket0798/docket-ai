@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import api from '../../services/api';
+import Pagination from '../../components/Pagination';
 
 const statusConfig = {
   completed: {
@@ -34,13 +35,19 @@ const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const LIMIT = 20;
 
   useEffect(() => {
-    api.get('/credits/payments')
-      .then(res => setPayments(res.data))
+    api.get('/credits/payments', { params: { page, limit: LIMIT } })
+      .then(res => {
+        setPayments(res.data.data);
+        setTotalPages(res.data.pagination.totalPages);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [page]);
 
   const filtered = payments.filter(p =>
     p.plan_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -159,10 +166,9 @@ const PaymentHistory = () => {
               </div>
             )}
           </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         )}
       </main>
-
-      <Footer />
     </div>
   );
 };

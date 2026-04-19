@@ -102,18 +102,25 @@ const AIQuestions = () => {
   };
 
   const handleNext = async () => {
+    // Require at least one selection before proceeding
+    if (selectedSet.size === 0) {
+      toast('Please select at least one option before continuing.', 'warning');
+      return;
+    }
+
     setSaving(true);
     try {
       const selectedIndices = Array.from(selectedSet);
-      if (selectedIndices.length > 0) {
-        await api.post(`/projects/${projectId}/questions`, {
-          question: question.question,
-          answer: selectedIndices.join(','),
-          question_order: currentStep,
-        });
-      }
+      await api.post(`/projects/${projectId}/questions`, {
+        question: question.question,
+        answer: selectedIndices.join(','),
+        question_order: currentStep,
+      });
     } catch (err) {
       console.error(err);
+      toast('Failed to save your selection. Please try again.', 'error');
+      setSaving(false);
+      return;
     } finally {
       setSaving(false);
     }

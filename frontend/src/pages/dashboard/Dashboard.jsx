@@ -4,9 +4,12 @@ import { MdAdd, MdMoreVert, MdDelete } from 'react-icons/md';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import api from '../../services/api';
+import { useToast } from '../../context/ToastContext';
+import Pagination from '../../components/Pagination';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [workspaces, setWorkspaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -15,19 +18,28 @@ const Dashboard = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [form, setForm] = useState({ name: '', description: '' });
   const [menuOpen, setMenuOpen] = useState(null);
+  // Delete confirmation modal
+  const [deleteTarget, setDeleteTarget] = useState(null); // workspace object to delete
+  const [deleting, setDeleting] = useState(false);
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const LIMIT = 12;
 
-  const fetchWorkspaces = async () => {
+  const fetchWorkspaces = async (p = page) => {
     try {
-      const res = await api.get('/workspaces');
-      setWorkspaces(res.data);
+      const res = await api.get('/workspaces', { params: { page: p, limit: LIMIT } });
+      setWorkspaces(res.data.data);
+      setTotalPages(res.data.pagination.totalPages);
     } catch (err) {
       console.error(err);
+      toast('Failed to load workspaces. Please refresh.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchWorkspaces(); }, []);
+  useEffect(() => { fetchWorkspaces(page); }, [page]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -48,7 +60,8 @@ const Dashboard = () => {
       // Auto-close success after 2s and refresh
       setTimeout(() => {
         setShowSuccess(false);
-        fetchWorkspaces();
+        setPage(1);
+        fetchWorkspaces(1);
       }, 2000);
     } catch (err) {
       console.error(err);
@@ -65,11 +78,33 @@ const Dashboard = () => {
       setWorkspaces(workspaces.filter(w => w.id !== id));
     } catch (err) {
       console.error(err);
+      toast('Failed to delete workspace. Please try again.', 'error');
     }
     setMenuOpen(null);
   };
+  // Opens the delete confirmation modal
+  const handleDelete = (ws) => {
+    setDeleteTarget(ws);
+    setMenuOpen(null);
+  };
 
-  const handleOpen = (ws) => {
+  // Called when user confirms deletion inside the modal
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/workspaces/${deleteTarget.id}`);
+      setWorkspaces(prev => prev.filter(w => w.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (err) {
+      console.error(err);
+      toast('Failed to delete workspace. Please try again.', 'error');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+
     navigate(`/workspace/${ws.id}`, { state: { workspaceName: ws.name } });
   };
 
@@ -152,7 +187,7 @@ const Dashboard = () => {
                         {menuOpen === ws.id && (
                           <div className="absolute right-0 top-7 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[130px]">
                             <button
-                              onClick={() => handleDelete(ws.id)}
+                              onClick={() => handleDelete(ws)}
                               className="flex items-center gap-2 w-full px-3 py-2 text-sm text-[#B24E4E] hover:bg-red-50 rounded-lg cursor-pointer"
                             >
                               <img src="assets/icons/delete-workspace.svg" alt="" /> Delete
@@ -175,6 +210,7 @@ const Dashboard = () => {
                   <span className="text-sm text-gray-400 font-medium">New Workspace</span>
                 </button> */}
               </div>
+              <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
             </div>
           </>
         )}
@@ -265,6 +301,46 @@ const Dashboard = () => {
       {/* Close menu on outside click */}
       {menuOpen && (
         <div className="fixed inset-0 z-0" onClick={() => setMenuOpen(null)} />
+      )}
+
+      {/* Delete Workspace Confirmation Modal */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+          onClick={() => setDeleteTarget(null)}
+        >
+          <div
+            className="bg-white rounded-[6px] w-full max-w-[560px] px-6 py-10 flex flex-col items-center text-center shadow-xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <img src="/assets/icons/delete-workspace.svg" alt="" className="mb-5 w-12 h-12" />
+            <h2 className="font-medium text-[22px] leading-[28px] text-secondary-text mb-2">
+              Delete Workspace?
+            </h2>
+            <p className="font-light text-base text-[#787889] mb-8 max-w-sm">
+              Are you sure you want to delete <span className="font-medium text-secondary-text">"{deleteTarget.name}"</span>?
+              This will permanently delete all projects inside it.
+            </p>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="h-[38px] w-[140px] border border-gray-300 text-gray-600 text-[15px] font-medium rounded-[6px] hover:bg-gray-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="h-[38px] w-[140px] bg-[#B24E4E] hover:bg-red-700 disabled:opacity-60 text-white text-[15px] font-medium rounded-[6px] transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {deleting
+                  ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  : 'Delete'
+                }
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Processing popup */}

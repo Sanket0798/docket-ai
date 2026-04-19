@@ -9,11 +9,24 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const getProjects = async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      'SELECT * FROM projects WHERE workspace_id = ? AND user_id = ? ORDER BY created_at DESC',
+    const page  = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit = Math.min(50, parseInt(req.query.limit) || 12);
+    const offset = (page - 1) * limit;
+
+    const [[{ total }]] = await pool.query(
+      'SELECT COUNT(*) as total FROM projects WHERE workspace_id = ? AND user_id = ?',
       [req.params.workspaceId, req.user.id]
     );
-    res.json(rows);
+
+    const [rows] = await pool.query(
+      'SELECT * FROM projects WHERE workspace_id = ? AND user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+      [req.params.workspaceId, req.user.id, limit, offset]
+    );
+
+    res.json({
+      data: rows,
+      pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

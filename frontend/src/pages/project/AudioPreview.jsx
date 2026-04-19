@@ -11,8 +11,26 @@ const AudioPreview = () => {
   const { workspaceId, projectId } = useParams();
   const location = useLocation();
   const workspaceName = location.state?.workspaceName || 'my_workspace';
-  const audioFiles = location.state?.audioFiles || [];   // passed from ScriptEditor
+  const initialAudioFiles = location.state?.audioFiles || [];   // passed from ScriptEditor
   const { toast } = useToast();
+
+  // Local copy of audio files — seeded from navigation state,
+  // then hydrated from the DB if the page is refreshed
+  const [audioFiles, setAudioFiles] = useState(initialAudioFiles);
+  const [audioFilesLoading, setAudioFilesLoading] = useState(initialAudioFiles.length === 0);
+
+  // If no state was passed (e.g. page refresh), load audio URL from the project record
+  useEffect(() => {
+    if (initialAudioFiles.length > 0) return; // already have them from navigation
+    api.get(`/projects/${projectId}`)
+      .then(res => {
+        if (res.data.audio_url) {
+          setAudioFiles([{ name: 'Audio 1', url: res.data.audio_url }]);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setAudioFilesLoading(false));
+  }, [projectId]);
 
   const [transcription, setTranscription] = useState('');
   const [status, setStatus] = useState('processing'); // 'processing' | 'completed' | 'error'
@@ -108,6 +126,31 @@ const AudioPreview = () => {
     }
   };
 
+  // ── Delete audio clip from list ────────────────────────────
+  const handleDeleteAudio = (index) => {
+    // Pause the audio if it's currently playing
+    const audio = audioRefs.current[index];
+    if (audio) audio.pause();
+    if (playingIndex === index) setPlayingIndex(null);
+
+    setAudioFiles(prev => prev.filter((_, i) => i !== index));
+    setDurations(prev => {
+      const next = { ...prev };
+      delete next[index];
+      return next;
+    });
+
+    // Adjust selectedAudio index if needed
+    setSelectedAudio(prev => {
+      if (index < prev) return prev - 1;
+      if (index === prev) return 0;
+      return prev;
+    });
+
+    // Remove the ref at this index
+    audioRefs.current.splice(index, 1);
+  };
+
   // ── Copy transcription ─────────────────────────────────────
   const handleCopy = () => {
     const text = isEditing ? editedText : transcription;
@@ -196,7 +239,7 @@ const AudioPreview = () => {
                     isSelected={selectedAudio === i}
                     duration={formatDuration(durations[i])}
                     onPlay={() => { setSelectedAudio(i); togglePlay(i); }}
-                    onDelete={() => { }}
+                    onDelete={() => handleDeleteAudio(i)}
                   />
                 </div>
               ))

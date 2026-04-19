@@ -5,6 +5,8 @@ import { HiOutlineDocument } from 'react-icons/hi';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import api from '../../services/api';
+import { useToast } from '../../context/ToastContext';
+import Pagination from '../../components/Pagination';
 
 const statusConfig = {
   draft:       { label: 'Draft',       icon: <MdEdit size={13} />,        cls: 'text-gray-500 bg-gray-100' },
@@ -18,6 +20,7 @@ const WorkspaceProjects = () => {
   const { workspaceId } = useParams();
   const location = useLocation();
   const workspaceName = location.state?.workspaceName || 'Workspace';
+  const { toast } = useToast();
 
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,19 +28,25 @@ const WorkspaceProjects = () => {
   const [projectName, setProjectName] = useState('');
   const [creating, setCreating] = useState(false);
   const [menuOpen, setMenuOpen] = useState(null);
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const LIMIT = 12;
 
-  const fetchProjects = async () => {
+  const fetchProjects = async (p = page) => {
     try {
-      const res = await api.get(`/projects/workspace/${workspaceId}`);
-      setProjects(res.data);
+      const res = await api.get(`/projects/workspace/${workspaceId}`, { params: { page: p, limit: LIMIT } });
+      setProjects(res.data.data);
+      setTotalPages(res.data.pagination.totalPages);
     } catch (err) {
       console.error(err);
+      toast('Failed to load projects. Please refresh.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchProjects(); }, [workspaceId]);
+  useEffect(() => { fetchProjects(page); }, [workspaceId, page]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -47,11 +56,14 @@ const WorkspaceProjects = () => {
       const res = await api.post(`/projects/workspace/${workspaceId}`, { name: projectName });
       setShowModal(false);
       setProjectName('');
+      setPage(1);
+      fetchProjects(1);
       // Go to upload type selection for new project
       navigate(`/workspace/${workspaceId}/upload`,
         { state: { workspaceName, projectId: res.data.id } });
     } catch (err) {
       console.error(err);
+      toast('Failed to create project. Please try again.', 'error');
     } finally {
       setCreating(false);
     }
@@ -64,6 +76,7 @@ const WorkspaceProjects = () => {
       setProjects(projects.filter(p => p.id !== id));
     } catch (err) {
       console.error(err);
+      toast('Failed to delete project. Please try again.', 'error');
     }
     setMenuOpen(null);
   };
@@ -133,7 +146,8 @@ const WorkspaceProjects = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {projects.map((project) => {
               const status = statusConfig[project.status] || statusConfig.draft;
               return (
@@ -191,6 +205,8 @@ const WorkspaceProjects = () => {
               <span className="text-sm text-gray-400 font-medium">New Project</span>
             </button>
           </div>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          </>
         )}
       </main>
 

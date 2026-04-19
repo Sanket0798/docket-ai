@@ -4,6 +4,7 @@ import { BsFilePdf, BsMicFill } from 'react-icons/bs';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import api from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 
 const UploadScript = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const UploadScript = () => {
   const location = useLocation();
   const workspaceName = location.state?.workspaceName || 'my_workspace';
   const existingProjectId = location.state?.projectId || null;
+  const { toast } = useToast();
 
   const [creating, setCreating] = useState(false);
 
@@ -33,6 +35,7 @@ const UploadScript = () => {
       );
     } catch (err) {
       console.error(err);
+      toast('Failed to create project. Please try again.', 'error');
     } finally {
       setCreating(false);
     }

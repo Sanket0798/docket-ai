@@ -3,6 +3,7 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
+import Pagination from '../../components/Pagination';
 
 const CreditUsage = () => {
   const navigate = useNavigate();
@@ -10,17 +11,28 @@ const CreditUsage = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showBanner, setShowBanner] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const LIMIT = 20;
 
   useEffect(() => {
-    Promise.all([
-      api.get('/credits/usage'),
-      api.get('/credits/history'),
-    ]).then(([usageRes, histRes]) => {
-      setUsage(usageRes.data);
-      setHistory(histRes.data);
-    }).catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+    const fetchData = async () => {
+      try {
+        const [usageRes, histRes] = await Promise.all([
+          api.get('/credits/usage'),
+          api.get('/credits/history', { params: { page, limit: LIMIT } }),
+        ]);
+        setUsage(usageRes.data);
+        setHistory(histRes.data.data);
+        setTotalPages(histRes.data.pagination.totalPages);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [page]);
 
   const formatDate = (d) => new Date(d).toLocaleDateString('en-IN', {
     day: '2-digit', month: 'short',
@@ -144,6 +156,7 @@ const CreditUsage = () => {
                 </div>
               </>
             )}
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
           </>
         )}
       </main>

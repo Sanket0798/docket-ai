@@ -36,7 +36,10 @@ const Preview = () => {
   useEffect(() => {
     api.get(`/projects/${projectId}/questions`)
       .then(res => setQuestions(res.data))
-      .catch(console.error)
+      .catch(err => {
+        console.error(err);
+        toast('Failed to load preview data. Please go back and try again.', 'error');
+      })
       .finally(() => setLoading(false));
   }, [projectId]);
 
@@ -48,6 +51,7 @@ const Preview = () => {
         { state: { workspaceName } });
     } catch (err) {
       console.error(err);
+      toast('Export failed. Please try again.', 'error');
     } finally {
       setExporting(false);
       setShowConfirm(false);
