@@ -84,8 +84,8 @@ const Login = () => {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="w-[400px]">
+      <div className="flex-1 flex items-center justify-center px-6 py-10 lg:px-0 lg:py-0">
+        <div className="w-full max-w-[400px]">
           {/* Heading */}
           <div className="mb-[26px]">
             <h2 className="font-medium text-[26px] leading-9 text-text-h1">

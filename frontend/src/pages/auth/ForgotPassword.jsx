@@ -28,13 +28,13 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen flex bg-white">
       {/* Left Panel */}
-      <div className="hidden lg:flex flex-col items-center justify-center bg-[#F8F7FF] w-[57%] px-16">
+      <div className="hidden lg:flex flex-col items-center justify-center bg-surface-subtle w-[57%] px-16">
         <img src={loginIllustration} alt="" className="w-full max-w-[500px] h-auto"
           onError={(e) => { e.target.style.display = 'none'; }} />
       </div>
 
       {/* Right Panel */}
-      <div className="flex flex-col justify-center w-full lg:w-[43%] px-8 lg:px-[94px]">
+      <div className="flex flex-col justify-center w-full lg:w-[43%] px-8 py-10 lg:px-[94px] lg:py-0">
         <div className="mb-10">
           <h1 className="text-[28px] font-bold text-gray-900 tracking-tight">Docket Factory</h1>
         </div>

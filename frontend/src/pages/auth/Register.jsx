@@ -125,8 +125,8 @@ const Register = () => {
       </div>
 
       {/* Right Panel */}
-      <div className="flex-1 flex items-center justify-center py-8">
-        <div className="w-[400px]">
+      <div className="flex-1 flex items-center justify-center px-6 py-10 lg:px-0 lg:py-8">
+        <div className="w-full max-w-[400px]">
           <div className="mb-[26px]">
             <h2 className="font-medium text-[26px] leading-9 text-text-h1">Adventure starts here</h2>
             <p className="font-normal leading-[22px] text-[15px] text-text-h2">Make your app management easy and fun!</p>

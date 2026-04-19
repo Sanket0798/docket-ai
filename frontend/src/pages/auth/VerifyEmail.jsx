@@ -99,8 +99,8 @@ const VerifyEmail = () => {
       </div>
 
       {/* Right Panel */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className='w-[400px]'>
+      <div className="flex-1 flex items-center justify-center px-6 py-10 lg:px-0 lg:py-0">
+        <div className='w-full max-w-[400px]'>
           {/* Heading */}
           <div className="mb-[26px] space-y-[6px]">
             <h2 className="font-medium text-[26px] leading-9 text-text-h1">
@@ -129,7 +129,7 @@ const VerifyEmail = () => {
           {/* OTP Input */}
           <form onSubmit={handleSubmit}>
             <p className="font-semibold text-sm text-input-label mb-2">Type your 6 digit security code</p>
-            <div className="flex gap-3 mb-8" onPaste={handlePaste}>
+            <div className="flex gap-2 lg:gap-3 mb-8" onPaste={handlePaste}>
               {otp.map((digit, index) => (
                 <input
                   key={index}
@@ -140,7 +140,7 @@ const VerifyEmail = () => {
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  className="w-14 h-12 text-center text-xl font-semibold border-2 border-input-border rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition text-gray-900"
+                  className="w-10 h-10 lg:w-14 lg:h-12 text-center text-xl font-semibold border-2 border-input-border rounded-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition text-gray-900"
                 />
               ))}
             </div>

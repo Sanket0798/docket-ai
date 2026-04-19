@@ -19,7 +19,7 @@ const GetStarted = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Logout top-right */}
-      <div className="flex justify-end px-8 pt-6">
+      <div className="flex justify-end px-4 pt-4 lg:px-8 lg:pt-6">
         <button
           onClick={handleLogout}
           className="flex items-center gap-2 px-4 h-[38px] bg-button-color text-white text-sm font-semibold rounded-lg hover:opacity-90 transition"
@@ -32,8 +32,8 @@ const GetStarted = () => {
       </div>
 
       {/* Centered content */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="w-[512px]">
+      <div className="flex-1 flex items-center justify-center px-6 py-8 lg:px-0 lg:py-0">
+        <div className="w-full max-w-[512px]">
           {/* Heading */}
           <h2 className="font-medium text-[26px] leading-9 text-text-h1 mb-1">
             You are all set to get started

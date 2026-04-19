@@ -70,13 +70,13 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen flex bg-white">
       {/* Left Panel */}
-      <div className="hidden lg:flex flex-col items-center justify-center bg-[#F8F7FF] w-[57%] px-16">
+      <div className="hidden lg:flex flex-col items-center justify-center bg-surface-subtle w-[57%] px-16">
         <img src={loginIllustration} alt="" className="w-full max-w-[500px] h-auto"
           onError={(e) => { e.target.style.display = 'none'; }} />
       </div>
 
       {/* Right Panel */}
-      <div className="flex flex-col justify-center w-full lg:w-[43%] px-8 lg:px-[94px]">
+      <div className="flex flex-col justify-center w-full lg:w-[43%] px-8 py-10 lg:px-[94px] lg:py-0">
         <div className="mb-10">
           <h1 className="text-[28px] font-bold text-gray-900 tracking-tight">Docket Factory</h1>
         </div>
@@ -105,7 +105,7 @@ const ResetPassword = () => {
             {/* OTP */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">OTP Code</label>
-              <div className="flex gap-3" onPaste={handlePaste}>
+              <div className="flex gap-2 lg:gap-3" onPaste={handlePaste}>
                 {otp.map((digit, i) => (
                   <input
                     key={i}
@@ -116,7 +116,7 @@ const ResetPassword = () => {
                     value={digit}
                     onChange={e => handleOtpChange(i, e.target.value)}
                     onKeyDown={e => handleKeyDown(i, e)}
-                    className="w-11 h-11 text-center text-lg font-semibold border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 transition text-gray-900"
+                    className="w-10 h-10 lg:w-11 lg:h-11 text-center text-lg font-semibold border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 transition text-gray-900"
                   />
                 ))}
               </div>
