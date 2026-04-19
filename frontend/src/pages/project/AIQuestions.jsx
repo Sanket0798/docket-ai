@@ -48,9 +48,10 @@ const AIQuestions = () => {
   const { workspaceId, projectId } = useParams();
   const location = useLocation();
   const workspaceName = location.state?.workspaceName || 'my_workspace';
+  const resumeStep = location.state?.resumeStep ?? 0;
   const { toast } = useToast();
 
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(resumeStep);
   const [answers, setAnswers] = useState({});       // { questionId: Set of selected indices }
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);     // initial skeleton load
@@ -205,10 +206,10 @@ const AIQuestions = () => {
 
               {/* Generating spinner card */}
               {generating && (
-                <div className="h-[160px] rounded-[6px] border-2 border-dashed border-gray-200 flex items-center justify-center">
+                <div className="h-[160px] rounded-[6px] flex items-center justify-center">
                   <div className="flex flex-col items-center gap-2">
                     {/* Figma-style spinner */}
-                    <div className="relative w-10 h-10">
+                    {/* <div className="relative w-10 h-10">
                       {Array.from({ length: 8 }).map((_, i) => (
                         <div
                           key={i}
@@ -222,7 +223,8 @@ const AIQuestions = () => {
                           }}
                         />
                       ))}
-                    </div>
+                    </div> */}
+                    <img src="/assets/icons/question-loading-spin.svg" alt="" />
                   </div>
                 </div>
               )}
@@ -232,16 +234,16 @@ const AIQuestions = () => {
 
         {/* Bottom bar — credits + generate more (left) | navigation (right) */}
         {!loading && (
-          <div className="flex items-center justify-between mt-8">
+          <div className="flex items-end justify-between mt-8">
             {/* Left — credits + generate more */}
-            <div className="flex flex-col gap-2">
-              <p className="text-sm text-brand-color font-medium">
+            <div className="flex flex-col gap-4">
+              <p className="font-medium text-base leading-7 text-brand-color">
                 {creditsUsed} credits used out of {TOTAL_CREDITS} credits
               </p>
               <button
                 onClick={handleGenerateMore}
                 disabled={generating || creditsUsed >= TOTAL_CREDITS}
-                className="flex items-center gap-2 h-[38px] px-5 bg-brand-color hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-[6px] transition self-start"
+                className="flex items-center justify-center gap-2 w-[192px] h-[38px] px-5 bg-brand-color hover:bg-blue-700 disabled:opacity-50 text-white text-[15px] font-medium rounded-[6px] transition self-start"
               >
                 {generating && (
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -255,27 +257,23 @@ const AIQuestions = () => {
               <button
                 onClick={handleBack}
                 disabled={currentStep === 0}
-                className="flex items-center gap-2 h-[38px] px-5 border border-gray-300 text-gray-600 text-sm font-medium rounded-[6px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+                className="flex items-center gap-2 h-[38px] px-5 border border-brand-color text-gray-600 text-[15px] font-medium rounded-[10px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
+                <img src="/assets/icons/left-arrow.svg" alt="" />
                 Previous question
               </button>
 
               <button
                 onClick={handleNext}
                 disabled={saving}
-                className="flex items-center gap-2 h-[38px] px-6 bg-brand-color hover:bg-blue-700 disabled:opacity-40 text-white text-sm font-medium rounded-[6px] transition"
+                className="flex items-center gap-2 h-[38px] px-5 border border-brand-color text-gray-600 text-[15px] font-medium rounded-[10px] hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
               >
                 {saving ? (
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
                     {currentStep === totalSteps - 1 ? 'Save & finish' : 'Save & next'}
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
+                    <img src="/assets/icons/right-arrow.svg" alt="" />
                   </>
                 )}
               </button>

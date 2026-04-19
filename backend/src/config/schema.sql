@@ -126,3 +126,17 @@ INSERT IGNORE INTO credit_plans (id, name, credits, price, description) VALUES
 (1, 'Starter', 100, 99, 'Perfect for trying out Docket Factory'),
 (2, 'Pro', 500, 399, 'For regular creators'),
 (3, 'Business', 1500, 999, 'For teams and heavy usage');
+
+-- Wishlist (saved AI-generated images)
+CREATE TABLE IF NOT EXISTS wishlist (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  project_id INT NOT NULL,
+  image_url VARCHAR(500),
+  image_index INT DEFAULT 0,
+  question_id VARCHAR(100),
+  tags VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+);

@@ -83,6 +83,11 @@ const Navbar = () => {
             </span> {credits} +</span>
           </Link>
 
+          {/* Wishlist heart */}
+          <Link to="/wishlist" className="w-9 h-9 flex items-center justify-center border border-button-border rounded-[4px] hover:bg-gray-50 transition">
+            <img src="/assets/icons/wishlist-heart.svg" alt="Wishlist" />
+          </Link>
+
           {/* Bell */}
           <button className="w-9 h-9 flex items-center justify-center border border-button-border rounded-[4px] hover:bg-gray-50 transition">
             <img src="/assets/icons/Bell.svg" alt="Notifications" />

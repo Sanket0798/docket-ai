@@ -21,6 +21,7 @@ import Dashboard from './pages/dashboard/Dashboard';
 import WorkspaceProjects from './pages/dashboard/WorkspaceProjects';
 
 // Project flow
+import ProjectWorkspace from './pages/project/ProjectWorkspace';
 import UploadScript from './pages/project/UploadScript';
 import ScriptEditor from './pages/project/ScriptEditor';
 import AudioPreview from './pages/project/AudioPreview';
@@ -34,6 +35,7 @@ import Credits from './pages/account/Credits';
 import PaymentHistory from './pages/account/PaymentHistory';
 import CreditUsage from './pages/account/CreditUsage';
 import Profile from './pages/account/Profile';
+import Wishlist from './pages/account/Wishlist';
 
 // 404
 import NotFound from './pages/NotFound';
@@ -62,6 +64,7 @@ function App() {
             <Route path="/workspace/:workspaceId" element={<ProtectedRoute><WorkspaceProjects /></ProtectedRoute>} />
 
             {/* Project flow */}
+            <Route path="/workspace/:workspaceId/project/:projectId/workspace" element={<ProjectWorkspace />} />
             <Route path="/workspace/:workspaceId/upload" element={<ProtectedRoute><UploadScript /></ProtectedRoute>} />
             <Route path="/workspace/:workspaceId/project/:projectId/editor" element={<ProtectedRoute><ScriptEditor /></ProtectedRoute>} />
             <Route path="/workspace/:workspaceId/project/:projectId/audio-preview" element={<ProtectedRoute><AudioPreview /></ProtectedRoute>} />
@@ -75,6 +78,7 @@ function App() {
             <Route path="/payment-history" element={<ProtectedRoute><PaymentHistory /></ProtectedRoute>} />
             <Route path="/credit-usage" element={<ProtectedRoute><CreditUsage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
 
             {/* Default */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

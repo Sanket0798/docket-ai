@@ -11,6 +11,7 @@ const onboardingRoutes = require('./src/routes/onboarding.routes');
 const creditsRoutes = require('./src/routes/credits.routes');
 const profileRoutes = require('./src/routes/profile.routes');
 const questionsRoutes = require('./src/routes/questions.routes');
+const wishlistRoutes = require('./src/routes/wishlist.routes');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use('/api/projects/:projectId/questions', questionsRoutes);
 app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/credits', creditsRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', message: 'Docket Factory API running' }));
 

@@ -1,39 +1,43 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { MdCheckCircle } from 'react-icons/md';
-import { LuSend } from 'react-icons/lu';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import api from '../../services/api';
+import { useToast } from '../../context/ToastContext';
+
+// Same gradient used in AIQuestions for placeholder images
+const CARD_GRADIENTS = [
+  'from-yellow-200 via-orange-300 to-purple-400',
+  'from-orange-200 via-yellow-300 to-green-300',
+  'from-purple-200 via-blue-300 to-orange-300',
+  'from-yellow-300 via-orange-200 to-teal-300',
+];
 
 const Preview = () => {
   const navigate = useNavigate();
   const { workspaceId, projectId } = useParams();
   const location = useLocation();
   const workspaceName = location.state?.workspaceName || 'my_workspace';
+  const answersFromState = location.state?.answers || {};
 
-  const [project, setProject] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const [exporting, setExporting] = useState(false);
 
+  // Track wishlisted cards: { "sectionIndex-cardIndex": true }
+  const [wishlisted, setWishlisted] = useState({});
+  // Track deleted cards: { "sectionIndex-cardIndex": true }
+  const [deleted, setDeleted] = useState({});
+  // Wishlist toast
+  const [wishlistMsg, setWishlistMsg] = useState('');
+  const { toast } = useToast();
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [projRes, qRes] = await Promise.all([
-          api.get(`/projects/${projectId}`),
-          api.get(`/projects/${projectId}/questions`),
-        ]);
-        setProject(projRes.data);
-        setQuestions(qRes.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    api.get(`/projects/${projectId}/questions`)
+      .then(res => setQuestions(res.data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [projectId]);
 
   const handleExport = async () => {
@@ -50,150 +54,192 @@ const Preview = () => {
     }
   };
 
-  const labelMap = {
-    golden_hour: 'Golden Hour', studio_soft: 'Studio Soft', dramatic: 'Dramatic',
-    natural: 'Natural Light', neon: 'Neon / Night', cinematic: 'Cinematic',
-    overcast: 'Overcast', backlit: 'Backlit', energetic: 'Energetic',
-    calm: 'Calm & Peaceful', inspirational: 'Inspirational', serious: 'Serious',
-    playful: 'Playful', mysterious: 'Mysterious', romantic: 'Romantic',
-    nostalgic: 'Nostalgic', fast_cuts: 'Fast Cuts', slow_motion: 'Slow Motion',
-    steady: 'Steady Flow', dynamic: 'Dynamic Mix', documentary: 'Documentary',
-    cinematic_slow: 'Cinematic Slow', music_sync: 'Music Synced', timelapse: 'Time-lapse',
-    warm_tones: 'Warm Tones', cool_tones: 'Cool Tones', vibrant: 'Vibrant',
-    desaturated: 'Desaturated', vintage: 'Vintage Film', teal_orange: 'Teal & Orange',
-    black_white: 'Black & White', pastel: 'Pastel Soft',
+  const handleWishlist = async (sectionIndex, cardIndex, questionId) => {
+    const key = `${sectionIndex}-${cardIndex}`;
+    if (wishlisted[key]) return; // already wishlisted
+
+    try {
+      await api.post('/wishlist', {
+        project_id: projectId,
+        image_url: null, // placeholder — real URL when AI generates images
+        image_index: cardIndex,
+        question_id: questionId || `q_${sectionIndex}`,
+        tags: sections[sectionIndex]?.question?.split(' ').slice(0, 2).join(',') || 'Lighting,Mood',
+      });
+      setWishlisted(prev => ({ ...prev, [key]: true }));
+      setWishlistMsg('Added to wishlist!');
+      setTimeout(() => setWishlistMsg(''), 2000);
+    } catch (err) {
+      console.error(err);
+      toast('Failed to add to wishlist', 'error');
+    }
   };
+
+  const handleDeleteCard = (sectionIndex, cardIndex) => {
+    const key = `${sectionIndex}-${cardIndex}`;
+    setDeleted(prev => ({ ...prev, [key]: true }));
+  };
+
+  // Build preview sections — one per question
+  // Each section shows the question + selected image cards
+  const sections = questions.length > 0
+    ? questions.map((q, i) => ({
+      question: q.question,
+      subtitle: 'Lighting influences the visual mood and depth of your scene',
+      gradient: CARD_GRADIENTS[i % CARD_GRADIENTS.length],
+      // answer is comma-separated indices e.g. "0,2,4"
+      selectedCount: q.answer ? q.answer.split(',').length : 4,
+    }))
+    : CARD_GRADIENTS.map((g, i) => ({
+      question: 'What lighting tone fits this scene?',
+      subtitle: 'Lighting influences the visual mood and depth of your scene',
+      gradient: g,
+      selectedCount: 4,
+    }));
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-8">
-        {/* Breadcrumb + back */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2 text-sm">
-            <button
-              onClick={() => navigate(`/workspace/${workspaceId}/project/${projectId}/questions`,
-                { state: { workspaceName } })}
-              className="text-gray-400 hover:text-gray-600 transition flex items-center gap-1"
-            >
-              ← Back
-            </button>
-            <span className="text-gray-300">/</span>
-            <span className="text-gray-500">{workspaceName}</span>
-            <span className="text-gray-300">/</span>
-            <span className="text-gray-900 font-semibold">Preview</span>
-          </div>
-
-          <button
-            onClick={() => setShowConfirm(true)}
-            className="flex items-center gap-2 h-[38px] px-6 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition"
-          >
-            <LuSend size={15} />
-            Save & Export
-          </button>
+      <main className="flex-1 px-[60px] py-[51px]">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 mb-[58px]">
+          <span className="text-text-h1 text-[34px] leading-12 font-medium">{workspaceName} /</span>
+          <span className="font-light text-[30px] leading-10 text-[#A7A7A7]">my_project</span>
         </div>
 
         {/* Heading */}
-        <div className="mb-6">
-          <h1 className="text-[22px] font-bold text-gray-900">Preview</h1>
-          <p className="text-sm text-gray-500 mt-1">All selected answers in one place</p>
+        <div className="flex flex-row mb-2 gap-5">
+          <button
+            onClick={() => navigate(`/workspace/${workspaceId}/project/${projectId}/questions`,
+              { state: { workspaceName, resumeStep: 3 } })}
+            className=" cursor-pointer"
+          >
+            <img src="/assets/icons/back-arrow.svg" alt="back" />
+          </button>
+          <h1 className="font-medium text-[34px] leading-[48px] text-text-h1">Preview</h1>
+        </div>
+        <p className="font-normal text-lg leading-[130%] text-[#5D586C] mb-9" style={{ fontFamily: 'Geist, sans-serif' }}>All selected generates in one place</p>
+
+        {/* Preview container */}
+        <div className="flex flex-col items-center justify-center border border-input-border rounded-[6px] bg-[#F9F9F9] py-9 mb-[73px]">
+
+          {loading ? (
+            <div className="flex items-center justify-center h-48">
+              <div className="w-8 h-8 border-4 border-brand-color border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : (
+            <div className="space-y-[30px]">
+              {sections.map((section, si) => (
+                <div key={si}>
+                  {/* Question title */}
+                  <h2 className="font-medium text-[22px] leading-8 text-text-h1 mb-2">{section.question}</h2>
+                  <p className="font-normal text-sm leading-[130%] text-[#5D586C] mb-5">{section.subtitle}</p>
+
+                  {/* Selected image grid — 4 cols */}
+                  <div className="grid grid-cols-4 gap-3">
+                    {Array.from({ length: section.selectedCount }).map((_, i) => {
+                      const key = `${si}-${i}`;
+                      if (deleted[key]) return null;
+                      const isWishlisted = wishlisted[key];
+                      return (
+                        <div
+                          key={i}
+                          className="relative rounded-[4px] overflow-hidden border-[3px] border-brand-color"
+                        >
+                          {/* Placeholder image */}
+                          <img
+                            src="/assets/project/AI-Image.jpg"
+                            alt=""
+                            className="w-[205px] h-[137px] object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.parentElement.classList.add(`bg-gradient-to-br`, section.gradient);
+                            }}
+                          />
+                          {/* Icon badges top-right */}
+                          <div className="absolute top-1.5 right-1.5 flex gap-1">
+                            {/* Delete card */}
+                            <button
+                              onClick={() => handleDeleteCard(si, i)}
+                              className="w-6 h-5 bg-white rounded-[6px] flex items-center justify-center hover:bg-red-50 transition cursor-pointer"
+                              title="Remove"
+                            >
+                              <img src="/assets/icons/delete-fill.svg" alt="" />
+                            </button>
+                            {/* Add to wishlist */}
+                            <button
+                              onClick={() => handleWishlist(si, i, questions[si]?.id)}
+                              className={`w-6 h-5 rounded-[6px] flex items-center justify-center transition cursor-pointer
+                                ${isWishlisted ? 'bg-red-100' : 'bg-white hover:bg-red-50'}`}
+                              title={isWishlisted ? 'Wishlisted' : 'Add to wishlist'}
+                            >
+                              <img
+                                src="/assets/icons/heart.svg"
+                                alt=""
+                                className={isWishlisted ? 'opacity-100' : 'opacity-70'}
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center h-48">
-            <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : (
-          <div className="flex gap-6">
-            {/* Left — Script */}
-            <div className="w-[40%]">
-              <div className="border border-gray-200 rounded-xl p-5 h-full">
-                <h2 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-indigo-500 rounded-full" />
-                  Script
-                </h2>
-                <div className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap max-h-[500px] overflow-y-auto">
-                  {project?.script_text || (
-                    <span className="text-gray-400 italic">No script text added</span>
-                  )}
-                </div>
-              </div>
-            </div>
+        {/* Save and export button — bottom left */}
+        <button
+          onClick={() => setShowConfirm(true)}
+          className="flex items-center justify-center w-[192px] h-[38px] px-6 bg-brand-color hover:bg-blue-700 text-white text-[15px] font-medium rounded-[6px] transition cursor-pointer"
+        >
+          Save and export
+        </button>
 
-            {/* Right — Q&A answers */}
-            <div className="w-[60%] space-y-4">
-              <h2 className="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full" />
-                Your Selections
-              </h2>
-
-              {questions.length === 0 ? (
-                <div className="border border-gray-200 rounded-xl p-6 text-center text-gray-400 text-sm">
-                  No questions answered yet
-                </div>
-              ) : (
-                questions.map((q, i) => (
-                  <div key={q.id} className="border border-gray-200 rounded-xl p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">
-                          Question {i + 1}
-                        </p>
-                        <p className="text-sm font-semibold text-gray-800 mb-2">{q.question}</p>
-                        <div className="flex items-center gap-2">
-                          <MdCheckCircle size={16} className="text-green-500 shrink-0" />
-                          <span className="text-sm text-gray-700 font-medium">
-                            {labelMap[q.answer] || q.answer}
-                          </span>
-                        </div>
-                      </div>
-                      <span className="text-xs bg-indigo-50 text-indigo-600 font-medium px-2.5 py-1 rounded-full shrink-0">
-                        Selected
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+        {/* Wishlist toast */}
+        {wishlistMsg && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm font-medium px-5 py-2.5 rounded-[6px] shadow-lg z-50 flex items-center gap-2">
+            <img src="/assets/icons/wishlist-heart.svg" alt="" className="w-4 h-4" />
+            {wishlistMsg}
           </div>
         )}
       </main>
 
       <Footer />
 
-      {/* Export Confirmation Modal */}
+      {/* Confirmation Modal */}
       {showConfirm && (
         <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4"
+          className="fixed inset-0 bg-black/20 flex items-center justify-center z-50"
           onClick={() => setShowConfirm(false)}
         >
           <div
-            className="bg-white rounded-2xl w-full max-w-[500px] p-8 shadow-xl text-center"
+            className="bg-white border border-[#CAC9CD] rounded-[6px] w-full max-w-[1000px] h-[488px] mx-4 flex flex-col items-center justify-center text-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-5">
-              <LuSend size={24} className="text-indigo-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Are you sure?</h2>
-            <p className="text-sm text-gray-500 mb-8 leading-relaxed">
-              Are you sure you want to save and export? No changes can be done once the file is exported.
+            <h2 className="font-bold text-[34px] leading-[48px] text-text-h1 mb-1">Are you sure ?</h2>
+            <p className="font-normal text-lg leading-[130%] text-[#5D586C] mb-5">
+              Are you sure you want to save and export? No changes can be<br />done once file is exported
             </p>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-6">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="h-[38px] px-6 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition"
+                className="h-[38px] w-[192px] px-8 bg-[#E0E8FF] hover:bg-gray-200 text-black text-[15px] font-medium rounded-[6px] transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleExport}
                 disabled={exporting}
-                className="h-[38px] px-6 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold rounded-lg transition flex items-center gap-2"
+                className="h-[38px] w-[192px] px-8 bg-brand-color text-white text-[15px] font-medium rounded-[6px] transition cursor-pointer"
               >
-                {exporting ? (
+                {exporting && (
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : 'Yes, Export'}
+                )}
+                Export
               </button>
             </div>
           </div>
