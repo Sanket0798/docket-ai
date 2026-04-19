@@ -74,7 +74,7 @@ const Wishlist = () => {
       setShowSelectProject(false);
       setSuccessMsg(res.data.message);
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 90000);
+      setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       console.error(err);
       toast('Failed to add to project', 'error');
@@ -106,9 +106,9 @@ const Wishlist = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-8">
+      <main className="flex-1 px-4 lg:px-[60px] py-8">
         {/* Heading */}
-        <h1 className="text-[34px] font-medium text-text-h1 mb-6">My Wishlist</h1>
+        <h1 className="text-[24px] lg:text-[34px] font-medium text-text-h1 mb-6">My Wishlist</h1>
 
         {/* Search bar with Sort + Filter inside */}
         <div className="flex items-center gap-3 border border-input-border rounded-[6px] px-3 h-[51px] mb-6">
@@ -118,7 +118,7 @@ const Wishlist = () => {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search"
-            className="flex-1 font-normal text-[15px] leading-6 placeholder-gray-400 focus:outline-none"
+            className="flex-1 min-w-0 font-normal text-[15px] leading-6 placeholder-gray-400 focus:outline-none"
           />
           {/* Sort button */}
           <button
@@ -137,7 +137,7 @@ const Wishlist = () => {
 
         {/* Grid */}
         {loading ? (
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="h-[220px] bg-gray-100 rounded-[6px] animate-pulse" />
             ))}
@@ -149,7 +149,7 @@ const Wishlist = () => {
             <p className="text-gray-400 text-sm mt-1">Save AI-generated images from the preview page</p>
           </div>
         ) : (
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {items.map((item) => (
               <div key={item.id} className="relative rounded overflow-hidden group" style={{ aspectRatio: '4/3' }}>
                 {/* Full image fills card */}
@@ -209,13 +209,13 @@ const Wishlist = () => {
           onClick={() => setShowSelectProject(false)}
         >
           <div
-            className="bg-white rounded-[6px] w-full max-w-[748px] h-[604px] mx-4 py-8 px-[49px] shadow-xl"
+            className="bg-white rounded-[6px] w-full max-w-[748px] max-h-screen overflow-y-auto mx-4 py-8 px-6 lg:px-[49px] shadow-xl"
             onClick={e => e.stopPropagation()}
           >
             <h2 className="font-medium text-xl leading-[28px] text-black mb-8" style={{ fontFamily: 'Urbanist, sans-serif' }}>Select Project</h2>
 
-            {/* Projects grid — 2 cols */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-[27px] max-w-[650px] max-h-[400px] overflow-y-auto mb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {/* Projects grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 lg:gap-y-[27px] lg:max-w-[650px] max-h-[400px] overflow-y-auto mb-8 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {projects.length === 0 ? (
                 <p className="col-span-2 text-center text-gray-400 text-sm py-8">No projects found</p>
               ) : (
@@ -260,9 +260,9 @@ const Wishlist = () => {
       {/* ── Success Modal ── */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-          <div className="bg-white rounded-[6px] w-full max-w-[1128px] h-[360px] mx-4 shadow-xl flex flex-col items-center justify-center text-center">
-            <img src="/assets/icons/check_circle.svg" alt="" className='mb-[35px]' />
-            <p className="font-medium text-[28px] leading-5 text-secondary-text" style={{ fontFamily: 'Geist, sans-serif' }}>{successMsg}</p>
+          <div className="bg-white rounded-[6px] w-full max-w-[560px] lg:max-w-[1128px] lg:h-[360px] mx-4 px-6 py-10 shadow-xl flex flex-col items-center justify-center text-center">
+            <img src="/assets/icons/check_circle.svg" alt="" className='mb-4 lg:mb-[35px]' />
+            <p className="font-medium text-lg lg:text-[28px] leading-[22px] lg:leading-5 text-secondary-text" style={{ fontFamily: 'Geist, sans-serif' }}>{successMsg}</p>
           </div>
         </div>
       )}

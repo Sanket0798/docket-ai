@@ -32,7 +32,7 @@ const CreditUsage = () => {
 
       {/* Warning banners */}
       {showBanner && usage && parseFloat(usage.credits_left) === 0 && (
-        <div className="w-full bg-[#FDE7EA] border-b border-[#979797] px-[60px] py-[10px] flex items-center gap-3">
+        <div className="w-full bg-[#FDE7EA] border-b border-[#979797] px-4 lg:px-[60px] py-[10px] flex items-center gap-3">
           <img src="assets/icons/no-credit.svg" alt="" />
           <p className="font-normal text-base leading-6 text-[#F0142F] flex-1">
             No credits left! Recharge Now
@@ -41,7 +41,7 @@ const CreditUsage = () => {
         </div>
       )}
       {showBanner && usage && parseFloat(usage.credits_left) > 0 && parseFloat(usage.credits_left) <= 50 && (
-        <div className="w-full bg-[#FFF4C9] border-b border-[#FFE082] px-[60px] py-[10px] flex items-center gap-3">
+        <div className="w-full bg-[#FFF4C9] border-b border-[#FFE082] px-4 lg:px-[60px] py-[10px] flex items-center gap-3">
           <img src="assets/icons/low-credit.svg" alt="" />
           <p className="font-normal text-base leading-6 text-[#F99600] flex-1">
             Low on credits ! Recharge now
@@ -50,9 +50,9 @@ const CreditUsage = () => {
         </div>
       )}
 
-      <main className="flex-1 px-[60px] pt-[53px] pb-[94px]">
+      <main className="flex-1 px-4 lg:px-[60px] pt-[53px] pb-[94px]">
         {/* Header */}
-        <div className='flex flex-row items-center justify-between'>
+        <div className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4'>
           <div className="flex flex-col items-start gap-y-4">
             <h1 className="font-medium text-2xl text-heading-text leading-[22px]">Credit Usage</h1>
             <p className="font-light text-lg leading-6 text-secondary-text">
@@ -77,13 +77,13 @@ const CreditUsage = () => {
         ) : (
           <>
             {/* Stats cards */}
-            <div className="flex flex-row gap-x-13 mt-[35px] mb-[62px]">
+            <div className="flex flex-col lg:flex-row gap-4 mt-[35px] mb-[62px]">
               {[
                 { label: 'Total credits purchased', value: usage?.total_purchased || 0 },
                 { label: 'Credits already spent', value: usage?.total_spent || 0 },
                 { label: 'Credits left to use', value: usage?.credits_left || 0 },
               ].map((stat, i) => (
-                <div key={i} className="border border-[#BABABA] rounded-[10px] w-[432px] h-[114px] flex flex-col items-center justify-center text-center bg-white">
+                <div key={i} className="border border-[#BABABA] rounded-[10px] w-full lg:w-[455px] h-[114px] flex flex-col items-center justify-center text-center bg-white">
                   <p className="font-semibold text-[32px] mb-2" style={{ fontFamily: 'Urbanist, sans-serif' }}>
                     {parseFloat(stat.value).toFixed(0)}
                   </p>
@@ -104,25 +104,41 @@ const CreditUsage = () => {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-6 gap-4 pb-[14px] border-b border-[#DCDCDC] mb-4">
+                {/* Desktop table header — hidden on mobile */}
+                <div className="hidden lg:grid grid-cols-6 gap-4 pb-[14px] border-b border-[#DCDCDC] mb-4">
                   {['Action', 'Assets', 'Project', 'Credits Used', 'Date', 'Status'].map((h, i) => (
                     <p key={i} className="font-medium text-base leading-[22px] text-text-h2 text-center">{h}</p>
                   ))}
                 </div>
                 <div className="flex flex-col gap-3">
                   {history.map((item) => (
-                    <div
-                      key={item.id}
-                      className="grid grid-cols-6 gap-4 px-4 py-4 items-center border border-gray-200 rounded-[10px] bg-white hover:bg-gray-50 transition shadow-[0_3px_12px_0_rgba(0,0,0,0.07)] font-medium text-base leading-[22px] text-text-h2 text-center"
-                    >
-                      <p className="truncate">{item.action}</p>
-                      <p className="truncate">{item.action_type || 'Image Generated'}</p>
-                      <p className="truncate">{item.project_name || '—'}</p>
-                      <p className="">{parseFloat(item.credits_used).toFixed(0)}</p>
-                      <p className="pl-5">{formatDate(item.created_at)}</p>
-                      <p className="pl-7 text-[#028900]">
-                        {item.status === 'completed' ? 'Done' : item.status === 'failed' ? 'Failed' : item.status}
-                      </p>
+                    <div key={item.id}>
+                      {/* Desktop row */}
+                      <div className="hidden lg:grid grid-cols-6 gap-4 px-4 py-4 items-center border border-gray-200 rounded-[10px] bg-white hover:bg-gray-50 transition shadow-[0_3px_12px_0_rgba(0,0,0,0.07)] font-medium text-base leading-[22px] text-text-h2 text-center">
+                        <p className="truncate">{item.action}</p>
+                        <p className="truncate">{item.action_type || 'Image Generated'}</p>
+                        <p className="truncate">{item.project_name || '—'}</p>
+                        <p className="">{parseFloat(item.credits_used).toFixed(0)}</p>
+                        <p className="pl-5">{formatDate(item.created_at)}</p>
+                        <p className="pl-7 text-[#028900]">
+                          {item.status === 'completed' ? 'Done' : item.status === 'failed' ? 'Failed' : item.status}
+                        </p>
+                      </div>
+                      {/* Mobile card */}
+                      <div className="lg:hidden border border-gray-200 rounded-[10px] bg-white p-4 shadow-[0_3px_12px_0_rgba(0,0,0,0.07)] space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-sm text-text-h2">{item.action}</span>
+                          <span className="text-xs font-medium text-[#028900]">
+                            {item.status === 'completed' ? 'Done' : item.status === 'failed' ? 'Failed' : item.status}
+                          </span>
+                        </div>
+                        <p className="text-xs text-text-h2">{item.action_type || 'Image Generated'}</p>
+                        <div className="flex items-center justify-between text-xs text-text-h2">
+                          <span>{item.project_name || '—'}</span>
+                          <span>{parseFloat(item.credits_used).toFixed(0)} credits</span>
+                          <span>{formatDate(item.created_at)}</span>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>

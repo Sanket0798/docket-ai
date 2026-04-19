@@ -249,7 +249,7 @@ const Credits = () => {
 
       <main className="flex-1 px-6 pt-14 pb-28">
         {/* Heading */}
-        <div className="text-center mb-24">
+        <div className="text-center mb-10 lg:mb-24">
           <h1 className="font-medium text-[26px] leading-9 text-text-h1 mb-[6px]">
             Power Your Creativity with Credits
           </h1>
@@ -272,10 +272,10 @@ const Credits = () => {
               return (
                 <div
                   key={plan.id}
-                  className={`flex flex-col items-center rounded-[5px] w-full md:w-[300px] h-[580px] transition-all
+                  className={`flex flex-col items-center rounded-[5px] w-full md:w-[300px] transition-all
                     ${isFeatured
-                      ? 'border border-[#3B5BDB] bg-[#F9F9F9] h-[630px] py-10 px-8 scale-110 z-10'
-                      : 'border border-[#B0B0B0] p-7'
+                      ? 'border border-[#3B5BDB] bg-[#F9F9F9] h-auto md:h-[630px] py-10 px-8 md:scale-110 z-10'
+                      : 'border border-[#B0B0B0] p-7 h-auto md:h-[580px]'
                     }`}
                 >
                   {/* Plan label */}

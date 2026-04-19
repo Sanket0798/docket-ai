@@ -74,7 +74,7 @@ const Profile = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] pt-7 pb-[138px]">
+      <main className="flex-1 px-4 lg:px-[60px] pt-7 pb-16 lg:pb-[138px]">
         <h1 className="font-medium text-heading-text text-[26px] leading-[36px] mb-[18px]">Profile setting</h1>
 
         {loading ? (
@@ -92,7 +92,7 @@ const Profile = () => {
             )}
 
             {/* Row 1: First Name + Last Name */}
-            <div className="grid grid-cols-2 gap-5 mb-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
               <div>
                 <label className={labelCls}>First Name</label>
                 <input
@@ -119,7 +119,7 @@ const Profile = () => {
             </div>
 
             {/* Row 2: Email + Contact */}
-            <div className="grid grid-cols-2 gap-5 mb-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
               <div>
                 <label className={labelCls}>Email ID</label>
                 <input
@@ -188,13 +188,13 @@ const Profile = () => {
       {/* Success popup */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-[18px] h-[340px] shadow-xl px-10 py-8 flex flex-col items-center justify-center gap-6 min-w-[1128px]">
+          <div className="bg-white rounded-[18px] shadow-xl px-6 py-8 lg:px-10 flex flex-col items-center justify-center gap-6 w-full max-w-[560px] mx-4 lg:max-w-[1128px] lg:h-[340px]">
             <div className='rounded-full w-[75px] h-[75px]'>
               <img src="/assets/icons/check_circle.svg" alt="Success" />
             </div>
             <div className="text-center space-y-4">
-              <p className="font-medium text-[32px] leading-[24px] text-[#333333]">Changes saved successfully</p>
-              <p className="font-light text-lg leading-[24px] px-10 text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod <br /> tempor incididunt ut labore et dolore magna aliqua.</p>
+              <p className="font-medium text-[22px] lg:text-[32px] leading-[24px] text-secondary-text">Changes saved successfully</p>
+              <p className="font-light text-base lg:text-lg leading-[24px] px-2 lg:px-10 text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod <br /> tempor incididunt ut labore et dolore magna aliqua.</p>
             </div>
           </div>
         </div>

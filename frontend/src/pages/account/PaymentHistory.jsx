@@ -56,7 +56,7 @@ const PaymentHistory = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-[50px]">
+      <main className="flex-1 px-4 lg:px-[60px] py-[50px]">
         {/* Header */}
         <h1 className="text-2xl font-medium leading-[22px] text-heading-text mb-4">Payment history</h1>
         <p className="font-light text-lg leading-6 text-secondary-text mb-7">
@@ -87,8 +87,8 @@ const PaymentHistory = () => {
               />
             </div>
 
-            {/* Table header */}
-            <div className="grid grid-cols-7 gap-4 pb-3 border-b border-[#DCDCDC]">
+            {/* Table header — hidden on mobile */}
+            <div className="hidden lg:grid grid-cols-7 gap-4 pb-3 border-b border-[#DCDCDC]">
               {['Transaction ID', 'Plan / Product', 'Transaction ID', 'Payment Method', 'Date', 'Status', 'Invoice'].map((h, i) => (
                 <p key={i} className="font-medium text-base leading-[22px] text-text-h2 text-center">{h}</p>
               ))}
@@ -104,29 +104,54 @@ const PaymentHistory = () => {
                 {filtered.map((p) => {
                   const status = statusConfig[p.status] || statusConfig.pending;
                   return (
-                    <div
-                      key={p.id}
-                      className="grid grid-cols-7 gap-4 px-4 py-4 items-center border border-gray-200 rounded-[10px] bg-white hover:bg-gray-50 transition text-center text-text-h2 shadow-[0_3px_12px_0_rgba(0,0,0,0.07)]"
-                    >
-                      <p className="font-medium text-base pr-7 leading-[22px] truncate">
-                        {p.razorpay_order_id ? formatTxnId(p.razorpay_order_id) : '—'}
-                      </p>
-                      <p className="">{p.plan_name || '—'}</p>
-                      <p className="">₹{p.amount}</p>
-                      <p className="">{p.payment_method || '—'}</p>
-                      <p className="">{formatDate(p.created_at)}</p>
-                      <div className="flex items-center justify-center gap-1.5 pl-3">
-                        {status.icon}
-                        <span className={`font-medium text-base leading-[22px] ${status.cls}`}>{status.label}</span>
+                    <div key={p.id}>
+                      {/* Desktop row */}
+                      <div className="hidden lg:grid grid-cols-7 gap-4 px-4 py-4 items-center border border-gray-200 rounded-[10px] bg-white hover:bg-gray-50 transition text-center text-text-h2 shadow-[0_3px_12px_0_rgba(0,0,0,0.07)]">
+                        <p className="font-medium text-base pr-7 leading-[22px] truncate">
+                          {p.razorpay_order_id ? formatTxnId(p.razorpay_order_id) : '—'}
+                        </p>
+                        <p className="">{p.plan_name || '—'}</p>
+                        <p className="">₹{p.amount}</p>
+                        <p className="">{p.payment_method || '—'}</p>
+                        <p className="">{formatDate(p.created_at)}</p>
+                        <div className="flex items-center justify-center gap-1.5 pl-3">
+                          {status.icon}
+                          <span className={`font-medium text-base leading-[22px] ${status.cls}`}>{status.label}</span>
+                        </div>
+                        <div className='pl-8'>
+                          {p.status === 'completed' ? (
+                            <button className="h-[30px] px-4 bg-brand-color hover:bg-indigo-700 font-medium text-[13px] leading-[14px] text-white rounded transition">
+                              Download
+                            </button>
+                          ) : p.status === 'pending' ? (
+                            <span className="font-normal text-[10px] leading-[15px] text-brand-color underline cursor-pointer">No invoice</span>
+                          ) : null}
+                        </div>
                       </div>
-                      <div className='pl-8'>
-                        {p.status === 'completed' ? (
-                          <button className="h-[30px] px-4 bg-brand-color hover:bg-indigo-700 font-medium text-[13px] leading-[14px] text-white rounded transition">
+                      {/* Mobile card */}
+                      <div className="lg:hidden border border-gray-200 rounded-[10px] bg-white p-4 shadow-[0_3px_12px_0_rgba(0,0,0,0.07)] space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-sm text-text-h2 truncate">
+                            {p.razorpay_order_id ? formatTxnId(p.razorpay_order_id) : '—'}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            {status.icon}
+                            <span className={`font-medium text-xs ${status.cls}`}>{status.label}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-text-h2">
+                          <span>{p.plan_name || '—'}</span>
+                          <span>₹{p.amount}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-text-h2">
+                          <span>{p.payment_method || '—'}</span>
+                          <span>{formatDate(p.created_at)}</span>
+                        </div>
+                        {p.status === 'completed' && (
+                          <button className="h-[28px] px-4 bg-brand-color hover:bg-indigo-700 font-medium text-[12px] text-white rounded transition">
                             Download
                           </button>
-                        ) : p.status === 'pending' ? (
-                          <span className="font-normal text-[10px] leading-[15px] text-brand-color underline cursor-pointer">No invoice</span>
-                        ) : null}
+                        )}
                       </div>
                     </div>
                   );
