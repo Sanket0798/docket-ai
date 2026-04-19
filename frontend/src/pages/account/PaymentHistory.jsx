@@ -21,6 +21,15 @@ const statusConfig = {
   },
 };
 
+// Converts any raw order ID into a stable "TXN-XXXXN" display format
+const formatTxnId = (rawId = '') => {
+  // Extract digits and letters from the raw ID for a deterministic short code
+  const digits = rawId.replace(/\D/g, '').slice(-4).padStart(4, '0');
+  const letters = rawId.replace(/[^A-Za-z]/g, '').toUpperCase();
+  const letter = letters.slice(-1) || 'A';
+  return `TXN-${digits}${letter}`;
+};
+
 const PaymentHistory = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -99,8 +108,8 @@ const PaymentHistory = () => {
                       key={p.id}
                       className="grid grid-cols-7 gap-4 px-4 py-4 items-center border border-gray-200 rounded-[10px] bg-white hover:bg-gray-50 transition text-center text-text-h2 shadow-[0_3px_12px_0_rgba(0,0,0,0.07)]"
                     >
-                      <p className="font-medium text-base leading-[22px] truncate">
-                        {p.razorpay_order_id?.slice(0, 12) || '—'}
+                      <p className="font-medium text-base pr-7 leading-[22px] truncate">
+                        {p.razorpay_order_id ? formatTxnId(p.razorpay_order_id) : '—'}
                       </p>
                       <p className="">{p.plan_name || '—'}</p>
                       <p className="">₹{p.amount}</p>

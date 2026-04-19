@@ -123,9 +123,9 @@ CREATE TABLE IF NOT EXISTS credit_plans (
 
 -- Seed default credit plans
 INSERT IGNORE INTO credit_plans (id, name, credits, price, description) VALUES
-(1, 'Starter', 100, 99, 'Perfect for trying out Docket Factory'),
-(2, 'Pro', 500, 399, 'For regular creators'),
-(3, 'Business', 1500, 999, 'For teams and heavy usage');
+(1, 'Starter', 100, 199, 'Perfect for trying out Docket Factory'),
+(2, 'Pro', 300, 499, 'For regular creators and filmmakers'),
+(3, 'Business', 1000, 1299, 'For professionals and heavy usage');
 
 -- Wishlist (saved AI-generated images)
 CREATE TABLE IF NOT EXISTS wishlist (
