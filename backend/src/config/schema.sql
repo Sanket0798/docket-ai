@@ -140,3 +140,16 @@ CREATE TABLE IF NOT EXISTS wishlist (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
+
+-- ── Indexes for query performance ─────────────────────────────────────
+-- Safe to run on an existing DB — IF NOT EXISTS prevents duplicates.
+CREATE INDEX IF NOT EXISTS idx_users_email        ON users(email);
+CREATE INDEX IF NOT EXISTS idx_otps_user_type     ON otps(user_id, type);
+CREATE INDEX IF NOT EXISTS idx_workspaces_user    ON workspaces(user_id);
+CREATE INDEX IF NOT EXISTS idx_projects_ws_user   ON projects(workspace_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_projects_user      ON projects(user_id);
+CREATE INDEX IF NOT EXISTS idx_questions_project  ON project_questions(project_id);
+CREATE INDEX IF NOT EXISTS idx_credit_tx_user     ON credit_transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_payments_user      ON payments(user_id);
+CREATE INDEX IF NOT EXISTS idx_payments_order     ON payments(razorpay_order_id);
+CREATE INDEX IF NOT EXISTS idx_wishlist_user      ON wishlist(user_id);

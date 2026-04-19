@@ -14,8 +14,20 @@ const generateToken = (user) =>
 const register = async (req, res) => {
   try {
     const { first_name, last_name, email, phone, company_name, password } = req.body;
+
+    // Input validation
     if (!first_name || !last_name || !email || !password)
       return res.status(400).json({ message: 'First name, last name, email and password are required' });
+    if (first_name.length > 50 || last_name.length > 50)
+      return res.status(400).json({ message: 'Name must be 50 characters or less' });
+    if (email.length > 150)
+      return res.status(400).json({ message: 'Email must be 150 characters or less' });
+    if (password.length < 8)
+      return res.status(400).json({ message: 'Password must be at least 8 characters' });
+    if (phone && phone.length > 20)
+      return res.status(400).json({ message: 'Phone number must be 20 characters or less' });
+    if (company_name && company_name.length > 150)
+      return res.status(400).json({ message: 'Company name must be 150 characters or less' });
 
     const [existing] = await pool.query('SELECT id FROM users WHERE email = ?', [email]);
     if (existing.length > 0)
@@ -216,4 +228,13 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, verifyEmailOTP, resendOTP, getMe, forgotPassword, resetPassword };
+// Logout — client always clears localStorage; this endpoint exists so
+// a future token blacklist (Redis) can be plugged in here without
+// changing the frontend.
+const logout = async (req, res) => {
+  // Currently stateless — JWT will expire naturally.
+  // To add a blacklist: store req.headers.authorization token in Redis with TTL = remaining JWT lifetime.
+  res.json({ message: 'Logged out successfully' });
+};
+
+module.exports = { register, login, verifyEmailOTP, resendOTP, getMe, forgotPassword, resetPassword, logout };

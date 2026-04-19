@@ -71,17 +71,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this workspace?')) return;
-    try {
-      await api.delete(`/workspaces/${id}`);
-      setWorkspaces(workspaces.filter(w => w.id !== id));
-    } catch (err) {
-      console.error(err);
-      toast('Failed to delete workspace. Please try again.', 'error');
-    }
-    setMenuOpen(null);
-  };
   // Opens the delete confirmation modal
   const handleDelete = (ws) => {
     setDeleteTarget(ws);
@@ -105,6 +94,7 @@ const Dashboard = () => {
   };
 
 
+  const handleOpen = (ws) => {
     navigate(`/workspace/${ws.id}`, { state: { workspaceName: ws.name } });
   };
 

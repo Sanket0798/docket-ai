@@ -36,6 +36,8 @@ const createWorkspace = async (req, res) => {
   try {
     const { name, description } = req.body;
     if (!name) return res.status(400).json({ message: 'Workspace name is required' });
+    if (name.length > 150) return res.status(400).json({ message: 'Workspace name must be 150 characters or less' });
+    if (description && description.length > 500) return res.status(400).json({ message: 'Description must be 500 characters or less' });
 
     const [result] = await pool.query(
       'INSERT INTO workspaces (user_id, name, description) VALUES (?, ?, ?)',

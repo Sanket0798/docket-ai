@@ -51,6 +51,16 @@ const AIQuestions = () => {
   const resumeStep = location.state?.resumeStep ?? 0;
   const { toast } = useToast();
 
+  const [projectName, setProjectName] = useState(location.state?.projectName || '');
+
+  // Fetch project name if not passed via navigation state
+  useEffect(() => {
+    if (projectName) return;
+    api.get(`/projects/${projectId}`)
+      .then(res => setProjectName(res.data.name || ''))
+      .catch(console.error);
+  }, [projectId]);
+
   const [currentStep, setCurrentStep] = useState(resumeStep);
   const [answers, setAnswers] = useState({});       // { questionId: Set of selected indices }
   const [saving, setSaving] = useState(false);
@@ -154,7 +164,9 @@ const AIQuestions = () => {
             <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
           <span className="text-text-h1 text-[22px] lg:text-[34px] leading-12 font-medium truncate">{workspaceName} /</span>
-          <span className="font-light text-[18px] lg:text-[30px] leading-10 text-[#A7A7A7] truncate">my_project</span>
+          <span className="font-light text-[18px] lg:text-[30px] leading-10 text-[#A7A7A7] truncate">
+            {projectName || '...'}
+          </span>
         </div>
 
         {/* Question heading */}

@@ -165,8 +165,8 @@ const PaymentHistory = () => {
                 })}
               </div>
             )}
+            <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
           </div>
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         )}
       </main>
     </div>

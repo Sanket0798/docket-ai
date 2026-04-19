@@ -18,13 +18,15 @@ const AudioPreview = () => {
   // then hydrated from the DB if the page is refreshed
   const [audioFiles, setAudioFiles] = useState(initialAudioFiles);
   const [audioFilesLoading, setAudioFilesLoading] = useState(initialAudioFiles.length === 0);
+  const [projectName, setProjectName] = useState(location.state?.projectName || '');
 
-  // If no state was passed (e.g. page refresh), load audio URL from the project record
+  // If no state was passed (e.g. page refresh), load audio URL + project name from the project record
   useEffect(() => {
-    if (initialAudioFiles.length > 0) return; // already have them from navigation
+    if (initialAudioFiles.length > 0 && projectName) return;
     api.get(`/projects/${projectId}`)
       .then(res => {
-        if (res.data.audio_url) {
+        if (!projectName) setProjectName(res.data.name || '');
+        if (initialAudioFiles.length === 0 && res.data.audio_url) {
           setAudioFiles([{ name: 'Audio 1', url: res.data.audio_url }]);
         }
       })
@@ -195,7 +197,9 @@ const AudioPreview = () => {
             <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
           <span className="text-text-h1 text-[22px] lg:text-[34px] leading-12 font-medium truncate">{workspaceName} /</span>
-          <span className="font-light text-[18px] lg:text-[30px] leading-10 text-[#A7A7A7] truncate">my_project</span>
+          <span className="font-light text-[18px] lg:text-[30px] leading-10 text-[#A7A7A7] truncate">
+            {projectName || '...'}
+          </span>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
@@ -204,8 +208,8 @@ const AudioPreview = () => {
           <div className="w-full lg:w-[393px] flex flex-col">
             <p className="font-normal text-lg leading-[130%] text-[#5D586C] mb-2">Uploaded audio files</p>
 
-            {audioFiles.length === 0 ? (
-              /* Fallback — show placeholder clips if no state passed */
+            {audioFilesLoading ? (
+              /* Fallback — show placeholder clips while loading */
               Array.from({ length: 3 }).map((_, i) => (
                 <AudioClipCard
                   key={i}
@@ -217,6 +221,9 @@ const AudioPreview = () => {
                   onDelete={() => { }}
                 />
               ))
+            ) : audioFiles.length === 0 ? (
+              /* All audios deleted */
+              <p className="text-sm text-gray-400 mt-4">No audio files. Go back to upload.</p>
             ) : (
               audioFiles.map((audio, i) => (
                 <div key={i}>
@@ -305,7 +312,7 @@ const AudioPreview = () => {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleCopy}
-                    className="flex items-center justify-center gap-1.5 w-[142px] h-[38px] px-5 bg-[#D9DDE9] text-[15px] leading-[18px] font-medium rounded-[6px] hover:bg-gray-50 transition"
+                    className="flex items-center justify-center gap-1.5 w-[142px] h-[38px] px-5 bg-[#D9DDE9] text-[15px] leading-[18px] font-medium rounded-[6px] cursor-pointer transition"
                   >
                     {/* {copied ? <MdCheck size={15} className="text-green-500" /> : <MdContentCopy size={15} />} */}
                     {copied ? 'Copied!' : 'Copy'}
@@ -319,7 +326,7 @@ const AudioPreview = () => {
                         setIsEditing(true);
                       }
                     }}
-                    className="flex items-center justify-center gap-1.5 w-[142px] h-[38px] px-5 bg-[#D9DDE9] text-[15px] leading-[18px] font-medium rounded-[6px] hover:bg-gray-50 transition"
+                    className="flex items-center justify-center gap-1.5 w-[142px] h-[38px] px-5 bg-[#D9DDE9] text-[15px] leading-[18px] font-medium rounded-[6px] cursor-pointer transition"
                   >
                     {/* <MdEdit size={15} /> */}
                     {isEditing ? 'Done' : 'Edit'}

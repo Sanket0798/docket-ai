@@ -1,22 +1,55 @@
 const express = require('express');
-const cors = require('cors');
+const cors    = require('cors');
+const helmet  = require('helmet');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+// ── Validate required environment variables at startup ─────
+const REQUIRED_ENV = ['JWT_SECRET', 'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+const missing = REQUIRED_ENV.filter(k => !process.env[k]);
+if (missing.length > 0) {
+  console.error(`[FATAL] Missing required environment variables: ${missing.join(', ')}`);
+  console.error('Check your .env file against .env.example and restart.');
+  process.exit(1);
+}
+
+// Warn (not fatal) about optional but important keys
+const WARN_ENV = ['CLIENT_URL', 'CLOUDINARY_CLOUD_NAME', 'RAZORPAY_KEY_ID', 'OPENAI_API_KEY'];
+WARN_ENV.forEach(k => {
+  if (!process.env[k]) console.warn(`[WARN] ${k} is not set — related features will use fallbacks or be disabled.`);
+});
+
 const { connectDB } = require('./src/config/db');
 
-const authRoutes      = require('./src/routes/auth.routes');
-const workspaceRoutes = require('./src/routes/workspace.routes');
-const projectRoutes   = require('./src/routes/project.routes');
+const authRoutes       = require('./src/routes/auth.routes');
+const workspaceRoutes  = require('./src/routes/workspace.routes');
+const projectRoutes    = require('./src/routes/project.routes');
 const onboardingRoutes = require('./src/routes/onboarding.routes');
-const creditsRoutes   = require('./src/routes/credits.routes');
-const profileRoutes   = require('./src/routes/profile.routes');
-const questionsRoutes = require('./src/routes/questions.routes');
-const wishlistRoutes  = require('./src/routes/wishlist.routes');
+const creditsRoutes    = require('./src/routes/credits.routes');
+const profileRoutes    = require('./src/routes/profile.routes');
+const questionsRoutes  = require('./src/routes/questions.routes');
+const wishlistRoutes   = require('./src/routes/wishlist.routes');
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
+// ── Security headers (Helmet) ──────────────────────────────
+app.use(helmet({
+  // Allow Razorpay checkout iframe to load
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
+
+// ── CORS ───────────────────────────────────────────────────
+// Fail loudly in production if CLIENT_URL is not set
+const allowedOrigin = process.env.CLIENT_URL;
+if (!allowedOrigin && process.env.NODE_ENV === 'production') {
+  console.error('[FATAL] CLIENT_URL must be set in production to configure CORS.');
+  process.exit(1);
+}
+app.use(cors({
+  origin: allowedOrigin || 'http://localhost:5173',
+  credentials: true,
+}));
 
 // ── Raw body capture for Razorpay webhook ─────────────────
 // Must be before express.json() so the webhook handler can
@@ -28,7 +61,7 @@ app.use((req, res, next) => {
     req.on('data', chunk => { data += chunk; });
     req.on('end', () => {
       req.rawBody = data;
-      req.body = JSON.parse(data || '{}');
+      try { req.body = JSON.parse(data || '{}'); } catch { req.body = {}; }
       next();
     });
   } else {
@@ -59,9 +92,9 @@ const otpLimiter = rateLimit({
 });
 
 // ── Routes ─────────────────────────────────────────────────
-app.use('/api/auth/login',          authLimiter);
-app.use('/api/auth/register',       authLimiter);
-app.use('/api/auth/resend-otp',     otpLimiter);
+app.use('/api/auth/login',           authLimiter);
+app.use('/api/auth/register',        authLimiter);
+app.use('/api/auth/resend-otp',      otpLimiter);
 app.use('/api/auth/forgot-password', otpLimiter);
 
 app.use('/api/auth',       authRoutes);

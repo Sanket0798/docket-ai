@@ -23,8 +23,10 @@ const UploadScript = () => {
 
       // Only create a new project if one wasn't passed in
       if (!projectId) {
+        // Generate a readable default name based on date
+        const defaultName = `Project ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`;
         const res = await api.post(`/projects/workspace/${workspaceId}`, {
-          name: `Project ${Date.now()}`,
+          name: defaultName,
         });
         projectId = res.data.id;
       }

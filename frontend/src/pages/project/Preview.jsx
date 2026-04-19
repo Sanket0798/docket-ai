@@ -24,6 +24,7 @@ const Preview = () => {
   const [loading, setLoading] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [projectName, setProjectName] = useState(location.state?.projectName || '');
 
   // Track wishlisted cards: { "sectionIndex-cardIndex": true }
   const [wishlisted, setWishlisted] = useState({});
@@ -34,8 +35,14 @@ const Preview = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    api.get(`/projects/${projectId}/questions`)
-      .then(res => setQuestions(res.data))
+    Promise.all([
+      api.get(`/projects/${projectId}/questions`),
+      projectName ? Promise.resolve(null) : api.get(`/projects/${projectId}`),
+    ])
+      .then(([questionsRes, projectRes]) => {
+        setQuestions(questionsRes.data);
+        if (projectRes) setProjectName(projectRes.data.name || '');
+      })
       .catch(err => {
         console.error(err);
         toast('Failed to load preview data. Please go back and try again.', 'error');
@@ -109,7 +116,9 @@ const Preview = () => {
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-[58px]">
           <span className="text-text-h1 text-[22px] lg:text-[34px] leading-12 font-medium truncate">{workspaceName} /</span>
-          <span className="font-light text-[18px] lg:text-[30px] leading-10 text-[#A7A7A7] truncate">my_project</span>
+          <span className="font-light text-[18px] lg:text-[30px] leading-10 text-[#A7A7A7] truncate">
+            {projectName || '...'}
+          </span>
         </div>
 
         {/* Heading */}

@@ -28,6 +28,9 @@ const WorkspaceProjects = () => {
   const [projectName, setProjectName] = useState('');
   const [creating, setCreating] = useState(false);
   const [menuOpen, setMenuOpen] = useState(null);
+  // Delete confirmation
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   // Pagination
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -69,16 +72,24 @@ const WorkspaceProjects = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this project?')) return;
+  const handleDelete = (project) => {
+    setDeleteTarget(project);
+    setMenuOpen(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await api.delete(`/projects/${id}`);
-      setProjects(projects.filter(p => p.id !== id));
+      await api.delete(`/projects/${deleteTarget.id}`);
+      setProjects(prev => prev.filter(p => p.id !== deleteTarget.id));
+      setDeleteTarget(null);
     } catch (err) {
       console.error(err);
       toast('Failed to delete project. Please try again.', 'error');
+    } finally {
+      setDeleting(false);
     }
-    setMenuOpen(null);
   };
 
   const handleOpen = (project) => {
@@ -166,7 +177,7 @@ const WorkspaceProjects = () => {
                     {menuOpen === project.id && (
                       <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[130px]">
                         <button
-                          onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
+                          onClick={(e) => { e.stopPropagation(); handleDelete(project); }}
                           className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
                         >
                           <MdDelete size={14} /> Delete
@@ -256,6 +267,46 @@ const WorkspaceProjects = () => {
       )}
 
       {menuOpen && <div className="fixed inset-0 z-0" onClick={() => setMenuOpen(null)} />}
+
+      {/* Delete Project Confirmation Modal */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+          onClick={() => setDeleteTarget(null)}
+        >
+          <div
+            className="bg-white rounded-[6px] w-full max-w-[480px] px-6 py-10 flex flex-col items-center text-center shadow-xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <img src="/assets/icons/delete-workspace.svg" alt="" className="mb-5 w-12 h-12" />
+            <h2 className="font-medium text-[22px] leading-[28px] text-secondary-text mb-2">
+              Delete Project?
+            </h2>
+            <p className="font-light text-base text-[#787889] mb-8 max-w-sm">
+              Are you sure you want to delete <span className="font-medium text-secondary-text">"{deleteTarget.name}"</span>?
+              This action cannot be undone.
+            </p>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="h-[38px] w-[130px] border border-gray-300 text-gray-600 text-[15px] font-medium rounded-[6px] hover:bg-gray-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deleting}
+                className="h-[38px] w-[130px] bg-[#B24E4E] hover:bg-red-700 disabled:opacity-60 text-white text-[15px] font-medium rounded-[6px] transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {deleting
+                  ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  : 'Delete'
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

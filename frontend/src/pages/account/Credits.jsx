@@ -176,6 +176,17 @@ const Credits = () => {
         setPaymentState('success');
         toast(`${plan.credits} credits added to your account!`, 'success');
       } else {
+        // Dynamically load Razorpay SDK if not already present
+        if (!window.Razorpay) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('Failed to load Razorpay SDK'));
+            document.body.appendChild(script);
+          });
+        }
+
         const options = {
           key: res.data.key_id,
           amount: res.data.amount,

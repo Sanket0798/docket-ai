@@ -46,6 +46,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    // Fire-and-forget — backend call to invalidate token server-side (if blacklist is implemented)
+    const token = localStorage.getItem('token');
+    if (token) {
+      api.post('/auth/logout').catch(() => {}); // silent — client clears regardless
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('onboardingDone');

@@ -70,7 +70,7 @@ const ScriptEditor = () => {
       setPdfUrl(res.data.url);
     } catch (err) {
       console.error('PDF upload failed:', err);
-      toast('PDF upload failed. Check Cloudinary credentials in .env', 'error');
+      toast('PDF upload failed. Only PDF files are allowed', 'error');
     } finally {
       setPdfUploading(false);
     }
@@ -202,22 +202,31 @@ const ScriptEditor = () => {
       });
 
       if (uploadType === 'audio') {
-        // If user recorded blobs (not uploaded via file picker), upload the first one now
-        let uploadedAudioFiles = recordings;
-        if (recordings.length > 0 && recordings[0].blob) {
-          const formData = new FormData();
-          formData.append('file', recordings[0].blob, 'recording.webm');
-          try {
-            const res = await api.post(`/projects/${projectId}/upload-audio`, formData, {
-              headers: { 'Content-Type': 'multipart/form-data' },
-            });
-            uploadedAudioFiles = [{ name: recordings[0].name, url: res.data.url }, ...recordings.slice(1)];
-          } catch {
-            // Keep local blob URL as fallback — transcription will fail gracefully
-          }
-        }
+        // Upload all recorded blobs to the server, then combine with the uploaded file
+        const uploadedRecordings = await Promise.all(
+          recordings.map(async (rec, i) => {
+            if (!rec.blob) return rec; // already has a server URL
+            const formData = new FormData();
+            formData.append('file', rec.blob, `recording-${i + 1}.webm`);
+            try {
+              const res = await api.post(`/projects/${projectId}/upload-audio`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+              });
+              return { name: rec.name, url: res.data.url };
+            } catch {
+              return { name: rec.name, url: rec.url }; // fallback to local blob URL
+            }
+          })
+        );
+
+        // Combine: uploaded file first, then all recordings
+        const allAudioFiles = [
+          ...(audioFile ? [{ name: audioFile.name, url: audioFile.url }] : []),
+          ...uploadedRecordings,
+        ];
+
         navigate(`/workspace/${workspaceId}/project/${projectId}/audio-preview`,
-          { state: { workspaceName, audioFiles: uploadedAudioFiles } });
+          { state: { workspaceName, audioFiles: allAudioFiles } });
       } else {
         await api.put(`/projects/${projectId}/status`, { status: 'processing' });
         navigate(`/workspace/${workspaceId}/project/${projectId}/submitted`,

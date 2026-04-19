@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import api from '../../services/api';
 
 // ─── Static waveform (reused from existing pages) ────────────────────────────
 const CLUSTERS = 4;
@@ -129,9 +131,18 @@ const CONTENT_TAGS = [
 
 // ─── Main component ───────────────────────────────────────────────────────────
 const ProjectWorkspace = () => {
-  const [activeTab, setActiveTab] = useState('script'); // 'script' | 'questions' | 'scene'
-  const [selectedCards, setSelectedCards] = useState({}); // { "qIdx-cardIdx": true }
+  const { projectId } = useParams();
+  const [activeTab, setActiveTab] = useState('script');
+  const [selectedCards, setSelectedCards] = useState({});
   const [wishlistAdded, setWishlistAdded] = useState(false);
+  const [projectName, setProjectName] = useState('');
+
+  useEffect(() => {
+    if (!projectId) return;
+    api.get(`/projects/${projectId}`)
+      .then(res => setProjectName(res.data.name || ''))
+      .catch(console.error);
+  }, [projectId]);
 
   const toggleCard = (qIdx, cardIdx) => {
     const key = `${qIdx}-${cardIdx}`;
@@ -154,7 +165,9 @@ const ProjectWorkspace = () => {
           <button className="cursor-pointer">
             <img src="/assets/icons/back-arrow.svg" alt="back" />
           </button>
-          <span className="text-text-h1 text-[22px] lg:text-[34px] leading-[48px] font-medium">my_project</span>
+          <span className="text-text-h1 text-[22px] lg:text-[34px] leading-[48px] font-medium">
+            {projectName || '...'}
+          </span>
         </div>
         <div className="flex items-center gap-4">
           <button className="flex items-center justify-center gap-2 w-[140px] h-[38px] px-5 bg-[#D9DDE9] rounded-[6px] text-[15px] font-medium text-[#4A4755] transition cursor-pointer">

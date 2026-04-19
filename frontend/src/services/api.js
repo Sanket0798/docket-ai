@@ -1,76 +1,42 @@
-/**
- * API service — switches between real backend and mock based on VITE_USE_MOCK.
- *
- * Real backend:  VITE_USE_MOCK=false  (default for local dev)
- * Client demo:   VITE_USE_MOCK=true   (.env.production / Vercel)
- */
-
 import axios from 'axios';
-import mockApi from './mockApi';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+/**
+ * API base URL strategy:
+ *
+ * LOCAL DEV:
+ *   VITE_API_URL is not set → baseURL = '/api'
+ *   Vite's dev server proxies /api → http://localhost:5000
+ *
+ * PRODUCTION (Vercel):
+ *   VITE_API_URL = https://your-render-app.onrender.com
+ *   baseURL = 'https://your-render-app.onrender.com/api'
+ *   Calls go directly to Render — no proxy needed.
+ */
+const baseURL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api';
 
-if (USE_MOCK) {
-  console.info('[API] Running in MOCK mode — no backend required');
-}
+const api = axios.create({ baseURL });
 
-const realApi = axios.create({
-  baseURL: '/api',
-});
-
-// Attach token to every request
-realApi.interceptors.request.use((config) => {
+// Attach JWT token to every request
+api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Handle 401 globally
-realApi.interceptors.response.use(
+// Handle 401 globally — clear session and redirect to login
+api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('onboardingDone');
       window.location.href = '/login';
     }
     return Promise.reject(err);
   }
 );
 
-const api = USE_MOCK ? mockApi : realApi;
-
 export default api;
-
-
-
-
-
-
-// import axios from 'axios';
-
-// const api = axios.create({
-//   baseURL: '/api',
-// });
-
-// // Attach token to every request
-// api.interceptors.request.use((config) => {
-//   const token = localStorage.getItem('token');
-//   if (token) config.headers.Authorization = `Bearer ${token}`;
-//   return config;
-// });
-
-// // Handle 401 globally
-// api.interceptors.response.use(
-//   (res) => res,
-//   (err) => {
-//     if (err.response?.status === 401) {
-//       localStorage.removeItem('token');
-//       localStorage.removeItem('user');
-//       window.location.href = '/login';
-//     }
-//     return Promise.reject(err);
-//   }
-// );
-
-// export default api;
