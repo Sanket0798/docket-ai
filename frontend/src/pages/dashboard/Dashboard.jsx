@@ -84,7 +84,7 @@ const Dashboard = () => {
             <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : workspaces.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-center my-[147px]">
+          <div className="flex flex-col items-center justify-center text-center my-12 lg:my-[147px]">
             <img src="/assets/icons/Empty-cuate.svg" alt="No workspaces" className="mb-6" />
             <p className="font-regular text-3xl text-[#1B1B1D] mb-2" style={{ fontFamily: 'Urbanist, sans-serif' }}>No Workspace Yet</p>
             <p className="font-normal text-[19px] text-[#787889] mb-6" style={{ fontFamily: 'Urbanist, sans-serif' }}>Create your videos in new workspace</p>
@@ -98,9 +98,9 @@ const Dashboard = () => {
           </div>
         ) : (
           <>
-            <div className='flex flex-col px-[60px] my-[18px]'>
+            <div className='flex flex-col px-4 lg:px-[60px] my-[18px]'>
               <div className="flex items-center justify-between mb-9">
-                <h1 className="text-[34px] font-medium leading-[48px] text-[#4A4755]">My Workspaces</h1>
+                <h1 className="text-[22px] lg:text-[34px] font-medium leading-[48px] text-[#4A4755]">My Workspaces</h1>
                 <button
                   onClick={() => setShowModal(true)}
                   className="flex items-center gap-2 h-[38px] px-5 bg-brand-color hover:bg-indigo-700 text-white font-medium text-[15px] leading-[18px] rounded-[6px] transition cursor-pointer"
@@ -270,15 +270,15 @@ const Dashboard = () => {
       {/* Processing popup */}
       {showProcessing && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-[6px] shadow-xl px-10 py-6 flex flex-col items-center gap-4 min-w-[594px]">
+          <div className="bg-white rounded-[6px] shadow-xl px-6 py-6 lg:px-10 flex flex-col items-center gap-4 w-full max-w-[594px] mx-4">
             <img
               src="/assets/icons/ultimate_loading.svg"
               alt="Loading"
               className="animate-spin"
             />
             <hr className="w-full border-t border-[#EFEFEF]/60 mb-2" />
-            <p className="font-light text-[32px] text-[#484848]">Please wait while we process</p>
-            <p className="text-lg font-light text-[#484848]">Do not refresh the page.....</p>
+            <p className="font-light text-[22px] lg:text-[32px] text-[#484848] text-center">Please wait while we process</p>
+            <p className="text-base lg:text-lg font-light text-[#484848] text-center">Do not refresh the page.....</p>
           </div>
         </div>
       )}
@@ -286,7 +286,7 @@ const Dashboard = () => {
       {/* Success popup */}
       {showSuccess && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-[18px] h-[340px] shadow-xl px-10 py-8 flex flex-col items-center justify-center gap-6 min-w-[1128px]">
+          <div className="bg-white rounded-[18px] shadow-xl px-6 py-8 lg:px-10 flex flex-col items-center justify-center gap-6 w-full max-w-[560px] mx-4 lg:max-w-[1128px] lg:h-[340px]">
             <div className='rounded-full w-[75px] h-[75px]'>
               <img
                 src="/assets/icons/check_circle.svg"
@@ -294,8 +294,8 @@ const Dashboard = () => {
               />
             </div>
             <div className="text-center space-y-4">
-              <p className="font-medium text-[32px] leading-[24px] text-secondary-text">Workspace created successfully</p>
-              <p className="font-light text-lg leading-[24px] px-10 text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod <br /> tempor incididunt ut labore et dolore magna aliqua.</p>
+              <p className="font-medium text-[22px] lg:text-[32px] leading-[24px] text-secondary-text text-center">Workspace created successfully</p>
+              <p className="font-light text-base lg:text-lg leading-[24px] px-2 lg:px-10 text-center">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod <br className="hidden lg:block" /> tempor incididunt ut labore et dolore magna aliqua.</p>
             </div>
           </div>
         </div>

@@ -90,7 +90,7 @@ const WorkspaceProjects = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
 
-      <main className="flex-1 px-[60px] py-8">
+      <main className="flex-1 px-4 lg:px-[60px] py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm mb-6">
           <button onClick={() => navigate('/dashboard')}
@@ -102,14 +102,14 @@ const WorkspaceProjects = () => {
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
             <h1 className="text-[22px] font-bold text-gray-900">{workspaceName}</h1>
             <p className="text-sm text-gray-500 mt-0.5">{projects.length} project{projects.length !== 1 ? 's' : ''}</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 h-[38px] px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition"
+            className="flex items-center gap-2 h-[38px] px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition self-start sm:self-auto"
           >
             <MdAdd size={18} /> New Project
           </button>
